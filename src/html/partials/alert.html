@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="module" src="/dist/app.js"></script>
+    <link rel="stylesheet" href="/dist/app.css">
+    <meta charset="UTF-8">
+    <title>General Alert</title>
+</head>
+<body>
+<div
+        data-alert-channel="general"
+        data-target="generic_alert_animation"
+        data-controller="alert animation" class="alert-overlay-root">
+
+    <svg id="alert-svg-root" data-name="Ebene 1" xmlns="http://www.w3.org/2000/svg" viewBox="100 25 1700 1000">
+        <defs>
+            <style>
+                .alert-logo {
+                    color: var(--theme-color);
+                    font-size: 80px;
+                }
+                .alert-content {
+                    color: var(--theme-color);
+                    font-size: 150px;
+                    height: 100%;
+                    width: 100%;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    flex-direction: column;
+                    font-family: 'Doto';
+                    font-weight: 500;
+                    overflow-wrap: anywhere;
+                    word-break: break-word;
+                    white-space: normal;
+                }
+
+                .alert-cls-1 { fill: var(--theme-color); }
+                .alert-cls-2 {
+                    fill: none;
+                    stroke: var(--theme-color);
+                    stroke-miterlimit: 10;
+                    stroke-width: 6px;
+                }
+                .alert-cls-3 { fill: #282828; }
+                .alert-cls-6 {
+                    fill: none;
+                    stroke: var(--theme-color);
+                    stroke-miterlimit: 10;
+                    stroke-width: 4px;
+                }
+                .alert-cls-9 { fill: url(#alert-bg-gradient); }
+                .alert-cls-12 { fill: #353535; }
+
+                .alert-overlay-root {
+                    --build-time: 3.20s;
+                    --video-in-delay: 1.7s;
+                    --video-in-time: .25s;
+                    --idle-delay: 3.80s;
+                    --video-out-delay: 5.45s;
+                    --video-out-time: .35s;
+                    --dismantle-delay: 6.05s;
+
+                    --theme-glow-alpha-low: .18;
+                    --theme-glow-alpha-mid: .42;
+                    --theme-glow-alpha-high: .62;
+                    --theme-glow-alpha-white: .55;
+                    --theme-shine-opacity-peak: .75;
+                    --theme-shine-opacity-mid: .35;
+                }
+
+                svg { overflow: visible; }
+
+                /* background comes in early, leaves late */
+                .alert-cls-9 {
+                    opacity: 0;
+                    animation:
+                            alert-svg-build-opacity .70s ease forwards .20s,
+                            alert-svg-dismantle-opacity .70s ease forwards 6.85s;
+                }
+
+                /* video: no movement, only opacity; last in, first out */
+                #alert-video-wrap {
+                    opacity: 0;
+                    animation:
+                            alert-svg-build-opacity var(--video-in-time) ease forwards var(--video-in-delay),
+                            alert-svg-dismantle-opacity var(--video-out-time) ease forwards var(--video-out-delay);
+                }
+
+                /* logo + text join after shell exists, leave before final frame */
+                .alert-logo,
+                .alert-content {
+                    opacity: 0;
+                    animation:
+                            alert-svg-build-opacity .45s ease forwards 2s,
+                            alert-svg-dismantle-opacity .35s ease forwards 5.55s;
+                }
+
+                /* lines draw on, then draw away in reverse-ish order */
+                .alert-cls-2,
+                .alert-cls-6 {
+                    stroke-dasharray: 5600;
+                    stroke-dashoffset: 5600;
+                    animation:
+                            alert-svg-build-line 1.25s cubic-bezier(.65,0,.25,1) var(--build-delay,1.5s) forwards,
+                            alert-svg-dismantle-line 1.15s cubic-bezier(.75,0,.25,1) var(--dismantle-line-delay,var(--dismantle-delay)) forwards;
+                }
+
+                .alert-svg-line-top-right { --build-delay: .00s; --dismantle-line-delay: 6.80s; }
+                .alert-svg-line-right-outside { --build-delay: .40s; --dismantle-line-delay: 6.60s; }
+                .alert-svg-line-main-right { --build-delay: .65s; --dismantle-line-delay: 6.40s; }
+                .alert-svg-line-main-left { --build-delay: .95s; --dismantle-line-delay: 6.25s; }
+                .alert-svg-line-bottom { --build-delay: 1.25s; --dismantle-line-delay: 6.15s; }
+                .alert-svg-line-node { --build-delay: 1.38s; --dismantle-line-delay: 6.05s; }
+
+                /* fill pieces */
+                .alert-cls-1,
+                .alert-cls-3 {
+                    opacity: 0;
+                    transform-box: fill-box;
+                    transform-origin: center;
+                    animation:
+                            alert-svg-build-fill .70s ease forwards var(--build-fill-delay,1.10s),
+                            alert-svg-dismantle-fill .70s ease forwards var(--dismantle-fill-delay,6.20s);
+                }
+
+                .alert-svg-bottom-left-accent { --build-fill-delay: 1.35s; --dismantle-fill-delay: 6.25s; }
+                .alert-svg-left-bar { --build-fill-delay: 1.45s; --dismantle-fill-delay: 6.20s; transform-origin: top center; }
+                .alert-svg-right-accent { --build-fill-delay: .52s; --dismantle-fill-delay: 6.65s; transform-origin: top center; }
+
+                /* top chunks build from top-right in a stepped order, idle shimmer, reverse out */
+                .alert-svg-top-accent {
+                    transform-box: fill-box;
+                    transform-origin: right center;
+                    animation:
+                            alert-svg-build-top-accent .55s cubic-bezier(.65,0,.25,1) var(--build-fill-delay,.05s) forwards,
+                            alert-alert-svg-top-accent-idle 1.65s ease-in-out infinite var(--idle-delay),
+                            alert-svg-dismantle-top-accent .55s cubic-bezier(.75,0,.25,1) var(--dismantle-fill-delay,6.95s) forwards;
+                }
+                .alert-alert-svg-top-accent-3 { --build-fill-delay: .05s; --dismantle-fill-delay: 7.21s; }
+                .alert-alert-svg-top-accent-2 { --build-fill-delay: .18s; --dismantle-fill-delay: 7.08s; }
+                .alert-alert-svg-top-accent-1 { --build-fill-delay: .31s; --dismantle-fill-delay: 6.95s; }
+
+                /* idle shine over the masked content */
+                #alert-svg-shine-sweep {
+                    opacity: 0;
+                    clip-path: url(#alert-video-mask);
+                    pointer-events: none;
+                    animation:
+                            alert-svg-shine-sweep 1.65s ease-in-out infinite var(--idle-delay),
+                            alert-svg-shine-off .2s linear forwards 5.45s;
+                }
+
+                #alert-svg-root {
+                    animation: alert-svg-idle-glow 1.8s ease-in-out infinite var(--idle-delay);
+                }
+
+                @keyframes alert-svg-build-line { to { stroke-dashoffset: 0; } }
+                @keyframes alert-svg-dismantle-line { to { stroke-dashoffset: -5600; opacity: 0; } }
+
+                @keyframes alert-svg-build-opacity { from { opacity: 0; } to { opacity: 1; } }
+                @keyframes alert-svg-dismantle-opacity { to { opacity: 0; } }
+
+                @keyframes alert-svg-build-fill {
+                    from { opacity: 0; transform: scale(.86); }
+                    to { opacity: 1; transform: scale(1); }
+                }
+                @keyframes alert-svg-dismantle-fill {
+                    to { opacity: 0; transform: scale(.82); }
+                }
+
+                @keyframes alert-svg-build-top-accent {
+                    0% { opacity: 0; transform: scaleX(0) translateX(14px); filter: drop-shadow(0 0 0 rgb(from var(--theme-color) r g b / 0)); }
+                    60% { opacity: 1; transform: scaleX(1.04) translateX(0); }
+                    100% { opacity: 1; transform: scaleX(1) translateX(0); filter: drop-shadow(0 0 7px rgb(from var(--theme-color) r g b / var(--theme-glow-alpha-mid))); }
+                }
+                @keyframes alert-svg-dismantle-top-accent {
+                    to { opacity: 0; transform: scaleX(0) translateX(10px); filter: drop-shadow(0 0 0 rgb(from var(--theme-color) r g b / 0)); }
+                }
+                @keyframes alert-alert-svg-top-accent-idle {
+                    0%, 100% { filter: drop-shadow(0 0 4px rgb(from var(--theme-color) r g b / var(--theme-glow-alpha-low))); }
+                    46% { filter: drop-shadow(0 0 7px rgb(from var(--theme-color) r g b / var(--theme-glow-alpha-mid))); }
+                    50% { filter: drop-shadow(0 0 12px rgb(255 255 255 / var(--theme-glow-alpha-white))); }
+                    54% { filter: drop-shadow(0 0 7px rgb(from var(--theme-color) r g b / var(--theme-glow-alpha-mid))); }
+                }
+
+                @keyframes alert-svg-idle-glow {
+                    0%, 100% { filter: drop-shadow(0 0 1px rgb(from var(--theme-color) r g b / var(--theme-glow-alpha-low))); }
+                    50% { filter: drop-shadow(0 0 10px rgb(from var(--theme-color) r g b / var(--theme-glow-alpha-high))); }
+                }
+
+                @keyframes alert-svg-shine-sweep {
+                    0% { opacity: 0; transform: translateX(-520px) skewX(-14deg); }
+                    18% { opacity: var(--theme-shine-opacity-peak); }
+                    52% { opacity: var(--theme-shine-opacity-mid); }
+                    100% { opacity: 0; transform: translateX(2100px) skewX(-14deg); }
+                }
+                @keyframes alert-svg-shine-off { to { opacity: 0; } }
+
+                @media (prefers-reduced-motion: reduce) {
+                    .alert-cls-1, .alert-cls-2, .alert-cls-3, .alert-cls-6, .alert-cls-9,
+                    #alert-video-wrap, #alert-svg-shine-sweep, #alert-svg-root,
+                    .alert-logo, .alert-content {
+                        animation: none !important;
+                        opacity: 1 !important;
+                        stroke-dashoffset: 0 !important;
+                        transform: none !important;
+                        filter: none !important;
+                    }
+                }
+            </style>
+
+            <linearGradient id="alert-bg-gradient" data-name="Gradient bez nazwy 109" x1="897.4" y1="639.4" x2="431.27" y2="173.28" gradientTransform="translate(1042.2) rotate(-180) scale(1 -1)" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="#353535" stop-opacity=".1"/>
+                <stop offset=".39" stop-color="#3b3b3b" stop-opacity=".1"/>
+                <stop offset="1" stop-color="var(--theme-color)" stop-opacity=".2"/>
+            </linearGradient>
+
+            <clipPath id="alert-video-mask" clipPathUnits="userSpaceOnUse">
+                <path d="M203.23 71.91 L1397.31 71.91 L1484.58 142.21 L1717.13 140.91 L1717.13 467.68 L1674.42 480.19 L1677.3 748.69 L1717.13 761.2 L1717.13 987.8 L714.14 987.8 L698.82 1017.63 L381.23 1016.7 L392.25 1034.93 L177.54 1034.93 L177.54 860.41 L184.88 860.41 L184.88 357.63 L149.5 328.01 L149.5 164.1 L203.94 125.3 Z"/>
+            </clipPath>
+
+            <linearGradient id="alert-svg-shine-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+                <stop offset="45%" stop-color="#ffffff" stop-opacity="0"/>
+                <stop offset="50%" stop-color="#ffffff" stop-opacity="0.75"/>
+                <stop offset="55%" stop-color="#ffffff" stop-opacity="0"/>
+                <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+            </linearGradient>
+        </defs>
+
+        <!-- background -->
+        <polyline
+                class="alert-cls-9"
+                points="
+                    203.23 71.91
+                    1397.31 71.91
+                    1484.58 142.21
+                    1717.13 140.91
+                    1717.13 467.68
+                    1674.42 480.19
+                    1677.3 748.69
+                    1717.13 761.2
+                    1717.13 987.8
+                    714.14 987.8
+                    698.82 1017.63
+                    381.23 1016.7
+                    392.25 1034.93
+                    177.54 1034.93
+                    177.54 860.41
+                    184.88 860.41
+                    184.88 357.63
+                    149.5 328.01
+                    149.5 164.1
+                    203.94 125.3
+                    203.23 71.91
+                "
+        />
+
+
+        <!-- video -->
+        <g id="alert-video-wrap" clip-path="url(#alert-video-mask)" data-alert-active-type="video">
+            <foreignObject x="0" y="0" width="1920" height="1082.17">
+                <video xmlns="http://www.w3.org/1999/xhtml"
+                       data-alert-target="element"
+                       data-alert-element-type="video"
+                       muted="muted"
+                       playsinline="playsinline"
+                       style="width:100%;height:100%;object-fit:cover;display:block;">
+                    <source src="/thargoid.mp4" type="video/mp4">
+                </video>
+            </foreignObject>
+        </g>
+
+
+        <!-- logo -->
+        <g data-alert-active-type="icon">
+            <foreignObject x="175" y="175" width="100" height="100">
+                <i class="alert-logo mdi mdi-ab-testing" data-alert-target="element" data-alert-element-type="icon"></i>
+            </foreignObject>
+        </g>
+
+        <circle class="alert-cls-6" cx="221.16" cy="297.36" r="6.26" data-alert-active-type="icon"/>
+        <polyline class="alert-cls-6" points="185.45 356.29 221.16 328.67 221.16 303.2" data-alert-active-type="icon"/>
+
+        <!-- text -->
+
+        <g data-alert-active-type="text">
+            <foreignObject x="300" y="100" width="1350" height="850" clip-path="url(#alert-video-mask)">
+                <div class="alert-content" data-alert-target="element" data-alert-element-type="contentContainer">
+                    <div class="stack" style="--stacks: 3;">
+                        <span style="--index: 0;" data-alert-target="element" data-alert-element-type="content">TextTextTextTextTextTextTextTextText</span>
+                        <span style="--index: 1;" data-alert-target="element" data-alert-element-type="content">TextTextTextTextTextTextTextTextText</span>
+                        <span style="--index: 2;" data-alert-target="element" data-alert-element-type="content">TextTextTextTextTextTextTextTextText</span>
+                    </div>
+                </div>
+            </foreignObject>
+        </g>
+
+        <!-- use as mask for video -->
+        <polygon class="alert-cls-1 alert-svg-bottom-left-accent" points="392.25 1034.93 177.54 1034.93 177.54 997.24 378.1 997.24 392.25 1034.93"/>
+        <polyline class="alert-cls-2 alert-svg-line-main-right" points="1481.41 140.91 1717.13 139.81 1717.13 467.68 1674.42 480.19 1677.3 748.69 1717.13 761.2 1717.13 987.8 714.14 987.8 698.82 1017.63 381.23 1016.7"/>
+        <polyline class="alert-cls-2 alert-svg-line-main-left" points="184.88 897.82 184.88 357.63 149.5 328.01 149.5 164.1 203.94 125.3 203.23 71.91 1397.31 71.91 1484.58 142.21"/>
+        <rect class="alert-cls-1 alert-svg-left-bar" x="177.54" y="860.41" width="14.68" height="174.52"/>
+
+        <!-- other crap -->
+        <polygon class="alert-cls-1 alert-svg-top-accent alert-alert-svg-top-accent-1"
+                 points="1438.27 74.85 1507.11 74.85 1569.54 123.79 1504.93 123.79"/>
+
+        <polygon class="alert-cls-1 alert-svg-top-accent alert-alert-svg-top-accent-2"
+                 points="1548.08 74.85 1612.35 74.85 1674.79 123.79 1609.56 123.79"/>
+
+        <polygon class="alert-cls-1 alert-svg-top-accent alert-alert-svg-top-accent-3"
+                 points="1651.33 74.85 1758.28 74.85 1758.28 123.79 1712.81 123.79"/>
+        <rect class="alert-cls-1 alert-svg-right-accent" x="1739.41" y="111.2" width="18.87" height="122.68"/>
+        <polyline class="alert-cls-2 alert-svg-line-top-right" points="1748.84 233.89 1748.84 481.35 1701.88 495.34 1701.66 664.85"/>
+        <polyline class="alert-cls-2 alert-svg-line-right-outside" points="748.1 1012.97 1773.47 1012.97 1773.47 952.55 1773.2 741.55 1726.23 727.41 1726.23 676.53 1726.23 679.57 1726.45 508.2 1773.42 494.06 1773.42 243.88 1773.91 309.08 1773.91 117.21 1773.91 47.24 1429.98 47.24 173.99 47.24 173.99 81.12"/>
+        <circle class="alert-cls-2 alert-svg-line-node" cx="732.08" cy="1012.97" r="16.01"/>
+        <circle class="alert-cls-2 alert-svg-line-node" cx="1701.12" cy="680.86" r="16.01"/>
+        <circle class="alert-cls-2 alert-svg-line-node" cx="173.99" cy="99.32" r="16.01"/>
+    </svg>
+</div>
+</body>
+</html>

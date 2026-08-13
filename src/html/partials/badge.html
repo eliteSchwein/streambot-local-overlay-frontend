@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="module" src="/dist/app.js"></script>
+    <link rel="stylesheet" href="/dist/app.css">
+    <meta charset="UTF-8">
+    <title>Badge</title>
+</head>
+<body>
+<div data-controller="badge" class="badge-overlay-root">
+    <svg id="badge-svg-root" data-name="Ebene 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 17 400 300">
+        <defs>
+            <style>
+                .badge-cls-3 {
+                    stroke-width: 2px;
+                }
+
+                .badge-cls-3, .badge-cls-4, .badge-cls-5 {
+                    fill: none;
+                }
+
+                .badge-cls-3, .badge-cls-5 {
+                    stroke: var(--theme-color);
+                    stroke-miterlimit: 10;
+                }
+
+                .badge-cls-10, .badge-cls-11 {
+                    fill: var(--theme-color);
+                }
+
+                .badge-cls-5 {
+                    stroke-width: 3px;
+                }
+
+                .badge-text-image {
+                    width: 100%!important;
+                    height: 30px!important;
+                    object-fit: contain;
+                }
+
+                .badge-content {
+                    position: relative;
+                }
+
+                .badge-title {
+                    color: var(--theme-color);
+                    place-items: start;
+                    width: 100%;
+                    height: 30px;
+                    text-align: left;
+                    font-size: 25px;
+                    font-family: 'Doto', sans-serif;
+                    grid-template-columns: 1fr;
+                    align-items: start;
+                    justify-content: start;
+                    align-content: start;
+                    font-weight: bold;
+                }
+                .badge-subtitle {
+                    color: #e5e5e5;
+                    width: 100%;
+                    height: 50%;
+                    text-align: left;
+                    font-size: 15px;
+                    font-family: 'Orbitron', sans-serif;
+                }
+
+                .badge-overlay-root {
+                    --badge-build-time: 1.45s;
+                    --badge-idle-delay: 1.65s;
+                    --theme-shine-opacity-peak: .70;
+                    --theme-shine-opacity-mid: .32;
+                }
+
+                svg { overflow: visible; }
+
+                .badge-cls-3,
+                .badge-cls-5 {
+                    stroke-dasharray: 900;
+                    stroke-dashoffset: 900;
+                    animation: badge-build-line var(--badge-build-time) cubic-bezier(.65, 0, .25, 1) var(--build-delay, 0s) forwards;
+                }
+
+                .badge-cls-10 {
+                    opacity: 0;
+                    transform-box: fill-box;
+                    animation: badge-build-fill .55s ease var(--build-fill-delay, .55s) forwards;
+                }
+
+                [data-badge-active-type],
+                g:has([data-badge-target="logo"]) {
+                    opacity: 0;
+                    transform-box: fill-box;
+                    transform-origin: center;
+                    animation: badge-build-content .45s ease 1.10s forwards;
+                }
+
+                g:has([data-badge-target="logo"]) {
+                    transform-origin: center;
+                    animation-delay: .65s;
+                }
+
+                .badge-cls-3:nth-of-type(1) { --build-delay: .00s; }
+                .badge-cls-3:nth-of-type(2) { --build-delay: .18s; }
+                .badge-cls-3:nth-of-type(3) { --build-delay: .30s; }
+                .badge-cls-3:nth-of-type(4) { --build-delay: .42s; }
+                .badge-cls-5 { --build-delay: .52s; }
+
+                .badge-cls-10:nth-of-type(1) { --build-fill-delay: .38s; transform-origin: right center; }
+                .badge-cls-10:nth-of-type(2) { --build-fill-delay: .50s; transform-origin: right center; }
+                .badge-cls-10:nth-of-type(3) { --build-fill-delay: .62s; transform-origin: right center; }
+                polygon.badge-cls-10:not(:first-of-type) { --build-fill-delay: .78s; transform-origin: left center; }
+
+
+                .badge-chip {
+                    transform-box: fill-box;
+                    transform-origin: center;
+                    animation:
+                            badge-build-fill .55s ease var(--build-fill-delay, .55s) forwards,
+                            badge-chip-step 2.40s cubic-bezier(.45, 0, .25, 1) infinite calc(var(--badge-idle-delay) + var(--chip-idle-offset, 0s));
+                }
+
+                .badge-chip-1 { --chip-idle-offset: 0s; }
+                .badge-chip-2 { --chip-idle-offset: .30s; }
+                .badge-chip-3 { --chip-idle-offset: .60s; }
+
+                #badge-shine-sweep-unique {
+                    opacity: 0;
+                    pointer-events: none;
+                    animation: badge-shine-sweep 1.55s ease-in-out infinite var(--badge-idle-delay);
+                }
+
+                @keyframes badge-build-line {
+                    to { stroke-dashoffset: 0; }
+                }
+
+                @keyframes badge-build-fill {
+                    from { opacity: 0; transform: scaleX(0); }
+                    to { opacity: 1; transform: scaleX(1); }
+                }
+
+                @keyframes badge-build-content {
+                    from { opacity: 0; transform: scale(.92); }
+                    to { opacity: 1; transform: scale(1); }
+                }
+
+
+                @keyframes badge-chip-step {
+                    0%, 12% { opacity: 1; }
+                    30% { opacity: .78; }
+                    48%, 100% { opacity: 1; }
+                }
+
+                @keyframes badge-shine-sweep {
+                    0% { opacity: 0; transform: translateX(-160px) skewX(-14deg); }
+                    18% { opacity: var(--theme-shine-opacity-peak); }
+                    52% { opacity: var(--theme-shine-opacity-mid); }
+                    100% { opacity: 0; transform: translateX(430px) skewX(-14deg); }
+                }
+
+                @media (prefers-reduced-motion: reduce) {
+                    .badge-cls-3,
+                    .badge-cls-5,
+                    .badge-cls-10,
+                    [data-badge-active-type],
+                    g:has([data-badge-target="logo"]),
+                    #badge-shine-sweep-unique,
+                    #badge-svg-root {
+                        animation: none !important;
+                        opacity: 1 !important;
+                        stroke-dashoffset: 0 !important;
+                        transform: none !important;
+                        filter: none !important;
+                    }
+                }
+            </style>
+            <linearGradient id="badge-shine-gradient-unique" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+                <stop offset="45%" stop-color="#ffffff" stop-opacity="0"/>
+                <stop offset="50%" stop-color="#ffffff" stop-opacity="0.72"/>
+                <stop offset="55%" stop-color="#ffffff" stop-opacity="0"/>
+                <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+            </linearGradient>
+        </defs>
+        <polyline class="badge-cls-3" points="1.84 134.91 41.55 134.91 51.08 121.93 104.34 121.93 113.14 134.91 232.92 134.91 243.39 124.96 320.11 124.96 341.75 75.72 336.91 61.85 357.44 16.04"/>
+        <polyline class="badge-cls-3" points="111.13 88.14 111.13 115.26 76.28 115.26"/>
+        <path class="badge-cls-3" d="M226.24,131.53c1.57.83,3.46.12,4.23-1.6s.11-3.78-1.47-4.61c-1.57-.83-3.46-.12-4.23,1.6-.76,1.72-.11,3.78,1.47,4.61Z"/>
+        <path class="badge-cls-3" d="M224.46,128.41h-11.49s1.94,0,1.94,0h-94.53s-9.26-13.15-9.26-13.15"/>
+        <!-- text only -->
+        <g data-badge-active-type="text_only">
+            <foreignObject x="120.85" y="40.92" width="215.09" height="64.07">
+                <div xmlns="http://www.w3.org/1999/xhtml" class="badge-content">
+                    <div class="badge-title stack" style="--stacks: 3;">
+                        <span style="--index: 0;" data-badge-target="title"></span>
+                        <span style="--index: 1;" data-badge-target="title"></span>
+                        <span style="--index: 2;" data-badge-target="title"></span>
+                    </div>
+                    <div class="badge-subtitle stack" style="--stacks: 3;">
+                        <span style="--index: 0;" data-badge-target="subtitle"></span>
+                        <span style="--index: 1;" data-badge-target="subtitle"></span>
+                        <span style="--index: 2;" data-badge-target="subtitle"></span>
+                    </div>
+                </div>
+            </foreignObject>
+        </g>
+
+        <!-- bottom line image -->
+        <g data-badge-active-type="text_image">
+            <foreignObject x="120.85" y="40.92" width="215.09" height="64.07">
+                <div xmlns="http://www.w3.org/1999/xhtml" class="badge-content">
+                    <div class="badge-title stack" style="--stacks: 3;">
+                        <span style="--index: 0;" data-badge-target="title"></span>
+                        <span style="--index: 1;" data-badge-target="title"></span>
+                        <span style="--index: 2;" data-badge-target="title"></span>
+                    </div>
+                </div>
+            </foreignObject>
+        </g>
+        <g data-badge-active-type="text_image">
+            <foreignObject x="129.85" y="75.28" width="185.09" height="32.07">
+                <img xmlns="http://www.w3.org/1999/xhtml" data-badge-target="titleImage" class="badge-text-image"/>
+            </foreignObject>
+        </g>
+
+        <!-- image only -->
+        <g data-badge-active-type="image_only">
+            <foreignObject x="129.85" y="40.92" width="185.09" height="64.07">
+                <img xmlns="http://www.w3.org/1999/xhtml" data-badge-target="fullImage" class="badge-image-only"/>
+            </foreignObject>
+        </g>
+
+        <rect class="badge-cls-4" x="48.45" y="141.53" width=".62" height="2.22"/>
+        <g>
+            <polygon class="badge-cls-10 badge-chip badge-chip-3" points="87.36 135.97 108.17 135.97 101.76 125.78 93.24 125.78 87.36 135.97"/>
+            <polygon class="badge-cls-10 badge-chip badge-chip-1" points="64.37 125.78 52.78 125.78 46.37 135.97 58.49 135.97 64.37 125.78"/>
+            <polygon class="badge-cls-10 badge-chip badge-chip-2" points="65.11 135.97 78.1 135.97 82.39 135.97 88.27 125.78 78.1 125.78 70.99 125.78 65.11 135.97"/>
+        </g>
+        <polygon class="badge-cls-10" points="245.56 128.22 237.98 135.75 322.8 135.95 326.17 128.42 245.56 128.22"/>
+        <path class="badge-cls-3" d="M354.73,39.01c1.57.83,3.46.12,4.23-1.6s.11-3.78-1.47-4.61c-1.57-.83-3.46-.12-4.23,1.6-.76,1.72-.11,3.78,1.47,4.61Z"/>
+        <polyline class="badge-cls-5" points="342.68 61.29 348.65 75.75 321.54 135.13"/>
+        <line class="badge-cls-3" x1="353.79" y1="38.14" x2="342.6" y2="62.41"/>
+        <g>
+            <foreignObject x="9.76" y="26.36" width="91.23" height="82.85">
+                <img xmlns="http://www.w3.org/1999/xhtml" data-badge-target="logo"/>
+            </foreignObject>
+        </g>
+    </svg>
+</div>
+</body>
+</html>

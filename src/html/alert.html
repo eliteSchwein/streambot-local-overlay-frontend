@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="module" src="/dist/app.js"></script>
+    <link rel="stylesheet" href="/dist/app.css">
+    <meta charset="UTF-8">
+    <title>AlertBox</title>
+</head>
+<body>
+    <div class="alert-container alert-container-2 px-4 py-3"
+         data-alert-channel="general"
+         data-controller="alert">
+        <div class="new-alert-box dynamic" style="width: calc(100% - 50px);height: calc(100vh - 50px); opacity: 0">
+            <div class="new-alert-container">
+                <div class="alert-video-container">
+                    <video data-alert-target="element" data-alert-element-type="video" style="display: none; opacity: 0">
+                        <source src="" type="video/mp4">
+                    </video>
+                </div>
+                <iframe class="d-none" data-alert-target="element" data-alert-element-type="iframe"></iframe>
+                <div class="alert-text-container">
+                    <div class="d-flex justify-content-center align-items-center"><i class="alert-logo mdi mdi-pen" data-alert-target="element" data-alert-element-type="icon"></i></div>
+                    <div class="alert-content" data-alert-target="element" data-alert-element-type="contentContainer">
+                        <div class="stack" style="--stacks: 3;">
+                            <span style="--index: 0;" data-alert-target="element" data-alert-element-type="content">Text</span>
+                            <span style="--index: 1;" data-alert-target="element" data-alert-element-type="content">Text</span>
+                            <span style="--index: 2;" data-alert-target="element" data-alert-element-type="content">Text</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

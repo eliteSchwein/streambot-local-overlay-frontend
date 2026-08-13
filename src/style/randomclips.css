@@ -1,0 +1,19 @@
+.random_clips {
+    inset: 0;
+    overflow: hidden;
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+.random_clips iframe {
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    width: calc(100% + 16px);
+    height: calc(100% + 16px);
+    display: block;
+    border: 0;
+    margin: 0;
+    padding: 0;
+}

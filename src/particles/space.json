@@ -1,0 +1,46 @@
+{
+  "name": "Space",
+  "themeKeys": [],
+  "fpsLimit": 60,
+  "background": { "opacity": 0 },
+  "fullScreen": { "enable": false, "zIndex": 0 },
+  "particles": {
+    "color": {
+      "value": ["#ffffff", "#b8d8ff", "#ffdca8"]
+    },
+    "number": {
+      "value": 90,
+      "density": { "enable": true, "width": 854, "height": 480 }
+    },
+    "shape": { "type": "circle" },
+    "size": {
+      "value": { "min": 0.6, "max": 2.4 }
+    },
+    "opacity": {
+      "value": { "min": 0.15, "max": 0.9 },
+      "animation": {
+        "enable": true,
+        "speed": 0.7,
+        "sync": false,
+        "startValue": "random"
+      }
+    },
+    "move": {
+      "enable": true,
+      "direction": "none",
+      "random": true,
+      "straight": false,
+      "speed": { "min": 0.05, "max": 0.45 },
+      "outModes": { "default": "out" }
+    },
+    "links": {
+      "enable": true,
+      "distance": 120,
+      "opacity": 0.08,
+      "width": 1,
+      "color": { "value": "#ffffff" }
+    }
+  },
+  "smooth": true,
+  "zLayers": 20
+}

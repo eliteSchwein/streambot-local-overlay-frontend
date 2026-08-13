@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script type="module" src="/dist/app.js"></script>
+<link rel="stylesheet" href="/dist/app.css">
+<meta charset="UTF-8">
+<title>Raid</title>
+<head>
+</head>
+<body>
+<div
+        data-alert-channel="raid"
+        data-controller="alert animation"
+        data-target="raid_animation"
+        style="width: 100%; height: 100%;"
+        class="raid-overlay-root">
+    <svg id="raid-svg-root" data-name="Ebene 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1082.17">
+        <defs>
+            <style>
+                .raid-cls-1 {
+                    fill: none;
+                    stroke-width: 8px;
+                }
+
+                .raid-cls-1, .raid-cls-2 {
+                    stroke: #EF5350;
+                    stroke-miterlimit: 10;
+                }
+
+                .raid-cls-3, .raid-cls-4, .raid-cls-2 {
+                    fill: #EF5350;
+                }
+
+                .raid-cls-4 {
+                    font-size: 145px;
+                }
+
+                .raid-cls-4, .raid-cls-2 {
+                    font-family: "Doto";
+                    font-variation-settings: 'wght' 700;
+                    font-weight: 700;
+                }
+
+                .raid-cls-2 {
+                    font-size: 130px;
+                }
+
+                .raid-cls-5 {
+                    fill: #353535;
+                }
+
+                .raid-overlay-root {
+                    /*
+                     * Timing @60fps:
+                     * Build: 0.00s-3.45s / frames 0-207
+                     * Idle runout: 3.45s-7.50s / frames 207-450
+                     * Clean buffer: 7.50s-7.70s / frames 450-462
+                     * Stop starts: 7.70s / frame 462
+                     */
+                    --raid-build-start: 0s;
+                    --raid-idle-start: 3.45s;
+                    --raid-end-start: 7.70s;
+                    --raid-accent: #EF5350;
+                }
+
+                svg { overflow: visible; }
+
+                .raid-line {
+                    stroke-dasharray: 5200;
+                    stroke-dashoffset: 5200;
+                    animation:
+                            raid-build-line 2.25s cubic-bezier(.65,0,.25,1) var(--build-delay, 0s) forwards,
+                            raid-dismantle-line 1.25s cubic-bezier(.75,0,.25,1) var(--end-delay, 7.00s) forwards;
+                }
+
+                .raid-line-outer-1 { --build-delay: .00s; --end-delay: 8.45s; }
+                .raid-line-outer-2 { --build-delay: .20s; --end-delay: 8.30s; }
+                .raid-line-right-1 { --build-delay: .65s; --end-delay: 8.05s; }
+                .raid-line-right-2 { --build-delay: .85s; --end-delay: 8.20s; }
+                .raid-line-bottom { --build-delay: 1.05s; --end-delay: 8.30s; }
+                .raid-node {
+                    --build-delay: 1.35s;
+                    --end-delay: 7.90s;
+                    stroke-dasharray: 120;
+                    stroke-dashoffset: 120;
+                    animation:
+                            raid-build-line .42s cubic-bezier(.65,0,.25,1) var(--build-delay, 1.35s) forwards,
+                            raid-dismantle-node .42s cubic-bezier(.75,0,.25,1) var(--end-delay, 6.85s) forwards;
+                }
+                .raid-node-left { --build-delay: 2.15s; --end-delay: 7.70s; }
+
+                .raid-fill {
+                    opacity: 0;
+                    transform-box: fill-box;
+                    transform-origin: center;
+                    animation:
+                            raid-build-fill .65s ease forwards var(--fill-delay, .8s),
+                            raid-dismantle-fill .65s ease forwards var(--end-fill-delay, 8.35s);
+                }
+
+                .raid-fill-x {
+                    opacity: 0;
+                    transform-box: fill-box;
+                    transform-origin: left center;
+                    animation:
+                            raid-build-x .55s ease forwards var(--fill-delay, .35s),
+                            raid-dismantle-x .55s ease forwards var(--end-fill-delay, 8.60s);
+                }
+
+                .raid-fill-y {
+                    opacity: 0;
+                    transform-box: fill-box;
+                    transform-origin: top center;
+                    animation:
+                            raid-build-y .55s ease forwards var(--fill-delay, .55s),
+                            raid-dismantle-y .55s ease forwards var(--end-fill-delay, 8.40s);
+                }
+
+                /* text: no transform animation, so the SVG translate() never jumps in idle */
+                .raid-text {
+                    opacity: 0;
+                    animation:
+                            raid-build-opacity .45s ease forwards 1.8s,
+                            raid-text-glow 1.35s steps(2,end) 3 3.45s forwards,
+                            raid-dismantle-opacity .45s ease forwards 8.00s;
+                }
+
+                #raid-warndreieck-left,
+                #raid-warndreieck-right {
+                    opacity: 0;
+                    transform-box: fill-box;
+                    transform-origin: center;
+                    animation:
+                            raid-build-opacity .45s ease forwards 1.45s,
+                            raid-warning-pulse 1.05s ease-in-out 3 3.45s forwards,
+                            raid-dismantle-opacity .45s ease forwards 7.90s;
+                }
+
+                .raid-warning-outline {
+                    fill: none;
+                    stroke: #EF5350;
+                    stroke-width: 8px;
+                    stroke-linejoin: miter;
+                    stroke-dasharray: 900;
+                    stroke-dashoffset: 900;
+                    animation:
+                            raid-build-line .8s cubic-bezier(.65,0,.25,1) 1.35s forwards,
+                            raid-warning-stroke-idle 1.05s ease-in-out 3 3.45s forwards,
+                            raid-dismantle-warning-line .65s cubic-bezier(.75,0,.25,1) 7.90s forwards;
+                }
+
+                .raid-warning-inner-line {
+                    fill: none;
+                    stroke: #EF5350;
+                    stroke-width: 3px;
+                    stroke-linejoin: miter;
+                    opacity: 0;
+                    animation:
+                            raid-build-opacity .35s ease forwards 1.75s,
+                            raid-warning-inner-line-idle 1.05s ease-in-out 3 3.45s forwards,
+                            raid-dismantle-opacity .35s ease forwards 7.80s;
+                }
+
+                .raid-warning-symbol {
+                    fill: #EF5350;
+                    stroke: #EF5350;
+                    opacity: 0;
+                    animation:
+                            raid-build-opacity .3s ease forwards 1.9s,
+                            raid-exclaim-flicker .75s steps(2,end) 5 3.45s forwards,
+                            raid-dismantle-opacity .3s ease forwards 7.80s;
+                }
+
+                .raid-warning-accent-line {
+                    fill: none;
+                    stroke: #EF5350;
+                    stroke-width: 7px;
+                    stroke-linecap: square;
+                    opacity: 0;
+                    stroke-dasharray: 80;
+                    stroke-dashoffset: 80;
+                    animation:
+                            raid-build-line .35s ease forwards 2.00s,
+                            raid-warning-accent-idle .95s steps(2,end) 4 3.45s forwards,
+                            raid-dismantle-warning-line .35s ease forwards 7.70s;
+                }
+
+                #raid-shine-sweep-unique {
+                    opacity: 0;
+                    pointer-events: none;
+                    mix-blend-mode: screen;
+                    animation:
+                            raid-shine 1.65s ease-in-out 2 3.45s forwards,
+                            raid-dismantle-opacity .2s linear forwards 7.90s;
+                }
+
+                #raid-svg-root {
+                    animation: raid-idle-glow 1.7s ease-in-out 2 3.45s forwards;
+                }
+
+                @keyframes raid-build-line { to { stroke-dashoffset: 0; opacity: 1; } }
+                @keyframes raid-dismantle-line { to { stroke-dashoffset: -5200; opacity: 0; } }
+                @keyframes raid-dismantle-node { to { stroke-dashoffset: -120; opacity: 0; } }
+                @keyframes raid-dismantle-warning-line { to { stroke-dashoffset: -900; opacity: 0; } }
+                @keyframes raid-build-fill { from { opacity: 0; transform: scale(.86); } to { opacity: 1; transform: scale(1); } }
+                @keyframes raid-dismantle-fill { to { opacity: 0; transform: scale(.82); } }
+                @keyframes raid-build-opacity { from { opacity: 0; } to { opacity: 1; } }
+                @keyframes raid-dismantle-opacity { to { opacity: 0; } }
+                @keyframes raid-build-x { from { opacity: 0; transform: scaleX(0); } to { opacity: 1; transform: scaleX(1); } }
+                @keyframes raid-dismantle-x { to { opacity: 0; transform: scaleX(0); } }
+                @keyframes raid-build-y { from { opacity: 0; transform: scaleY(0); } to { opacity: 1; transform: scaleY(1); } }
+                @keyframes raid-dismantle-y { to { opacity: 0; transform: scaleY(0); } }
+
+                @keyframes raid-warning-bg-in { from { opacity: 0; } to { opacity: .16; } }
+                @keyframes raid-warning-bg-pulse {
+                    0%,100% { opacity: .10; }
+                    50% { opacity: .22; }
+                }
+                @keyframes raid-warning-stroke-idle {
+                    0%,100% { stroke-width: 8px; filter: drop-shadow(0 0 3px rgba(255,165,165,.55)); }
+                    50% { stroke-width: 9px; filter: drop-shadow(0 0 9px rgba(255,165,165,.95)) drop-shadow(0 0 18px rgba(255,165,165,.35)); }
+                }
+                @keyframes raid-warning-corner-idle {
+                    0%,100% { opacity: .85; }
+                    50% { opacity: .25; }
+                }
+                @keyframes raid-warning-pulse {
+                    0%,100% { filter: drop-shadow(0 0 2px rgba(255,165,165,.40)); }
+                    50% { filter: drop-shadow(0 0 8px rgba(255,165,165,.85)) drop-shadow(0 0 16px rgba(255,165,165,.30)); }
+                }
+                @keyframes raid-exclaim-flicker {
+                    0%,100% { opacity: 1; }
+                    42% { opacity: .30; }
+                    47% { opacity: 1; }
+                    54% { opacity: .55; }
+                }
+
+                @keyframes raid-warning-inner-line-idle {
+                    0%,100% { opacity: .28; }
+                    50% { opacity: .55; }
+                }
+                @keyframes raid-warning-accent-idle {
+                    0%,100% { opacity: .78; }
+                    50% { opacity: .25; }
+                }
+                @keyframes raid-text-glow {
+                    0%,100% { filter: drop-shadow(0 0 4px rgba(255,165,165,.35)); }
+                    50% { filter: drop-shadow(0 0 12px rgba(255,165,165,.85)); }
+                    70% { filter: drop-shadow(4px 0 0 rgba(255,0,120,.35)) drop-shadow(-4px 0 0 rgba(0,255,255,.22)); }
+                }
+                @keyframes raid-idle-glow {
+                    0%,100% { filter: drop-shadow(0 0 2px rgba(255,165,165,.22)); }
+                    50% { filter: drop-shadow(0 0 12px rgba(255,165,165,.55)); }
+                }
+
+                @keyframes raid-shine {
+                    0% { opacity: 0; transform: translateX(-700px) skewX(-16deg); }
+                    15% { opacity: .85; }
+                    55% { opacity: .4; }
+                    100% { opacity: 0; transform: translateX(2100px) skewX(-16deg); }
+                }
+
+                .raid-warning-accent-top {
+                    animation:
+                            raid-build-line .35s ease forwards 2s,
+                            raid-accent-top-flow 1.2s ease-in-out 3 3.45s forwards,
+                            raid-dismantle-warning-line .35s ease forwards 7.70s;
+                }
+
+                .raid-warning-accent-left {
+                    animation:
+                            raid-build-line .35s ease forwards 2s,
+                            raid-accent-left-flow 1.2s ease-in-out 3 3.45s forwards,
+                            raid-dismantle-warning-line .35s ease forwards 7.70s;
+                }
+
+                .raid-warning-accent-right {
+                    animation:
+                            raid-build-line .35s ease forwards 2s,
+                            raid-accent-right-flow 1.2s ease-in-out 3 3.45s forwards,
+                            raid-dismantle-warning-line .35s ease forwards 7.70s;
+                }
+
+                @keyframes raid-accent-top-flow {
+                    0%,100% { transform: translateY(0); opacity: .7; }
+                    50% { transform: translateY(-10px); opacity: 1; }
+                }
+
+                @keyframes raid-accent-left-flow {
+                    0%,100% { transform: translate(0,0); opacity: .7; }
+                    50% { transform: translate(-14px,10px); opacity: 1; }
+                }
+
+                @keyframes raid-accent-right-flow {
+                    0%,100% { transform: translate(0,0); opacity: .7; }
+                    50% { transform: translate(14px,10px); opacity: 1; }
+                }
+
+
+                /* directional idle animation for custom triangles */
+                .raid-warning-accent-top {
+                    transform-box: fill-box;
+                    transform-origin: center;
+                    animation:
+                            raid-build-line .35s ease forwards 2s,
+                            raid-accent-top-flow 1.2s ease-in-out 3 3.45s forwards,
+                            raid-dismantle-warning-line .35s ease forwards 7.70s !important;
+                }
+
+                .raid-warning-accent-left {
+                    transform-box: fill-box;
+                    transform-origin: center;
+                    animation:
+                            raid-build-line .35s ease forwards 2s,
+                            raid-accent-left-flow 1.2s ease-in-out 3 3.45s forwards,
+                            raid-dismantle-warning-line .35s ease forwards 7.70s !important;
+                }
+
+                .raid-warning-accent-right {
+                    transform-box: fill-box;
+                    transform-origin: center;
+                    animation:
+                            raid-build-line .35s ease forwards 2s,
+                            raid-accent-right-flow 1.2s ease-in-out 3 3.45s forwards,
+                            raid-dismantle-warning-line .35s ease forwards 7.70s !important;
+                }
+
+                .raid-warning-inner-line {
+                    animation:
+                            raid-build-opacity .35s ease forwards 1.75s,
+                            raid-warning-inner-line-idle 1.2s ease-in-out 3 3.45s forwards,
+                            raid-dismantle-opacity .35s ease forwards 7.80s !important;
+                }
+
+                .raid-warning-symbol {
+                    animation:
+                            raid-build-opacity .3s ease forwards 1.9s,
+                            raid-warning-symbol-idle .8s ease-in-out 5 3.45s forwards,
+                            raid-dismantle-opacity .3s ease forwards 7.80s !important;
+                }
+
+                @keyframes raid-accent-top-flow {
+                    0%,100% {
+                        transform: translateY(0);
+                        opacity: .7;
+                    }
+
+                    50% {
+                        transform: translateY(-10px);
+                        opacity: 1;
+                    }
+                }
+
+                @keyframes raid-accent-left-flow {
+                    0%,100% {
+                        transform: translate(0,0);
+                        opacity: .7;
+                    }
+
+                    50% {
+                        transform: translate(-14px,10px);
+                        opacity: 1;
+                    }
+                }
+
+                @keyframes raid-accent-right-flow {
+                    0%,100% {
+                        transform: translate(0,0);
+                        opacity: .7;
+                    }
+
+                    50% {
+                        transform: translate(14px,10px);
+                        opacity: 1;
+                    }
+                }
+
+                @keyframes raid-warning-symbol-idle {
+                    0%,100% {
+                        opacity: .88;
+                        filter:
+                                drop-shadow(0 0 1px rgba(255,165,165,.12));
+                    }
+
+                    50% {
+                        opacity: 1;
+                        filter:
+                                drop-shadow(0 0 4px rgba(255,165,165,.28));
+                    }
+                }
+
+
+                /* fixed custom warning triangles */
+                .raid-warning-main {
+                    fill: rgba(255,165,165,.08);
+                    stroke: var(--raid-accent);
+                    stroke-width: 10px;
+                    stroke-linejoin: round;
+                    filter: drop-shadow(0 0 8px rgba(255,165,165,.55));
+                }
+
+                .raid-warning-inner {
+                    fill: rgba(255,165,165,.04);
+                    stroke: rgba(255,165,165,.48);
+                    stroke-width: 4px;
+                    stroke-linejoin: miter;
+                }
+
+                .raid-warning-accent-line {
+                    fill: none;
+                    stroke: var(--raid-accent);
+                    stroke-width: 7px;
+                    stroke-linecap: round;
+                    stroke-linejoin: round;
+                    stroke-dasharray: 90;
+                    stroke-dashoffset: 90;
+                    animation:
+                            raid-build-line .35s ease forwards 2.00s,
+                            raid-dismantle-warning-line .35s ease forwards 7.70s;
+                }
+
+                .raid-warning-accent-corner {
+                    opacity: .78;
+                    transform-box: view-box;
+                    transform-origin: center;
+                    animation-duration: 1.2s;
+                    animation-timing-function: ease-in-out;
+                    animation-iteration-count: 3;
+                    animation-delay: 3.45s;
+                    animation-fill-mode: both;
+                }
+
+                .raid-warning-accent-corner-top { animation-name: raid-accent-flow-top-fixed; }
+                .raid-warning-accent-corner-left { animation-name: raid-accent-flow-left-fixed; }
+                .raid-warning-accent-corner-right { animation-name: raid-accent-flow-right-fixed; }
+
+                @keyframes raid-accent-flow-top-fixed {
+                    0%,100% { transform: translateY(0); opacity: .75; }
+                    50% { transform: translateY(-4px); opacity: .95; }
+                }
+
+                @keyframes raid-accent-flow-left-fixed {
+                    0%,100% { transform: translate(0,0); opacity: .75; }
+                    50% { transform: translate(-5px,5px); opacity: .95; }
+                }
+
+                @keyframes raid-accent-flow-right-fixed {
+                    0%,100% { transform: translate(0,0); opacity: .75; }
+                    50% { transform: translate(5px,5px); opacity: .95; }
+                }
+
+
+
+                /* subtle alert-style gradient background */
+                .raid-bg-panel {
+                    fill: url(#raid-bg-gradient);
+                    opacity: 0;
+                    pointer-events: none;
+                    animation:
+                            raid-build-opacity .70s ease forwards .30s,
+                            raid-bg-idle 2.4s ease-in-out 2 3.45s forwards,
+                            raid-dismantle-opacity .45s ease forwards 7.90s;
+                }
+
+                @keyframes raid-bg-idle {
+                    0%, 100% { opacity: .48; }
+                    50% { opacity: .66; }
+                }
+
+            </style>
+            <linearGradient id="raid-shine-gradient-unique" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+                <stop offset="45%" stop-color="#ffffff" stop-opacity="0"/>
+                <stop offset="50%" stop-color="#ffffff" stop-opacity="0.8"/>
+                <stop offset="55%" stop-color="#ffffff" stop-opacity="0"/>
+                <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+            </linearGradient>
+
+            <linearGradient id="raid-bg-gradient" x1="1810" y1="95" x2="85" y2="1018" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="#353535" stop-opacity=".05"/>
+                <stop offset=".42" stop-color="#3b3b3b" stop-opacity=".05"/>
+                <stop offset="1" stop-color="var(--raid-accent)" stop-opacity=".16"/>
+                <animateTransform attributeName="gradientTransform" type="translate" values="-42 0; 42 0; -42 0" dur="5.2s" repeatCount="indefinite"/>
+            </linearGradient>
+
+        </defs>
+        <polygon class="raid-bg-panel" points="93.4 72.4 1440.55 72.4 1539.01 142.74 1801.37 141.44 1801.37 468.42 1753.18 480.94 1756.42 749.61 1801.37 762.13 1801.37 988.87 669.8 988.87 652.52 1018.72 294.22 1017.79 306.66 1036.03 64.42 1036.03 64.42 673.92 129.05 614.73 132.26 356.43 93.4 311.22"/>
+        <polygon class="raid-cls-3 raid-fill-x" points="306.66 1036.03 64.42 1036.03 64.42 998.32 290.69 998.32 306.66 1036.03"/>
+        <polyline class="raid-cls-1 raid-line raid-line-outer-1" points="1535.43 141.44 1801.37 140.34 1801.37 468.42 1753.18 480.94 1756.42 749.61 1801.37 762.13 1801.37 988.87 669.8 988.87 652.52 1018.72 294.22 1017.79"/>
+        <polyline class="raid-cls-1 raid-line raid-line-outer-2" points="1539.01 142.74 1440.55 72.4 93.4 72.4 93.4 311.22 132.26 356.43 129.05 614.73 72.7 673.92 72.7 874.86"/>
+        <rect class="raid-cls-3 raid-fill-y" x="64.42" y="861.4" width="16.56" height="174.63"/>
+        <polygon class="raid-cls-3 raid-fill-x" points="1486.76 75.35 1563.30 75.35 1640.80 124.31 1561.96 124.31"/>
+        <polygon class="raid-cls-3 raid-fill-x" points="1608.20 75.35 1681.60 75.35 1759.20 124.31 1684.70 124.31"/>
+        <polygon class="raid-cls-3 raid-fill-x" points="1726.50 75.35 1847.79 75.35 1847.79 124.31 1803.00 124.31"/>
+        <rect class="raid-cls-3 raid-fill-y" x="1826.5" y="111.72" width="21.29" height="122.76"/>
+        <polyline class="raid-cls-1 raid-line raid-line-right-1" points="1837.14 234.48 1837.14 482.1 1784.16 496.1 1783.91 665.72"/>
+        <polyline class="raid-cls-1 raid-line raid-line-right-2" points="708.11 1014.06 1864.92 1014.06 1864.92 953.6 1864.62 742.47 1811.63 728.32 1811.63 677.4 1811.63 680.45 1811.88 508.97 1864.87 494.82 1864.87 244.48 1865.42 309.72 1865.42 117.73 1865.42 47.72 1477.41 47.72 60.41 47.72 60.41 321.59 93.4 357.38"/>
+
+        <g id="raid-warndreieck-left">
+            <polygon
+                    class="raid-warning-main"
+                    points="278.94 430.37 185.54 592.15 372.35 592.15"/>
+
+            <polygon
+                    class="raid-warning-inner"
+                    points="278.94 462 212 578 345 578"/>
+
+            <!-- top accent: idles upward -->
+            <g class="raid-warning-accent-corner raid-warning-accent-corner-top">
+                <line class="raid-warning-accent-line" x1="278.94" y1="400" x2="251" y2="446"/>
+                <line class="raid-warning-accent-line" x1="278.94" y1="400" x2="306" y2="446"/>
+            </g>
+
+            <!-- left accent: idles down-left -->
+            <g class="raid-warning-accent-corner raid-warning-accent-corner-left">
+                <line class="raid-warning-accent-line" x1="160" y1="606" x2="220" y2="606"/>
+                <line class="raid-warning-accent-line" x1="160" y1="606" x2="181" y2="570"/>
+            </g>
+
+            <!-- right accent: idles down-right -->
+            <g class="raid-warning-accent-corner raid-warning-accent-corner-right">
+                <line class="raid-warning-accent-line" x1="338" y1="606" x2="398" y2="606"/>
+                <line class="raid-warning-accent-line" x1="377" y1="570" x2="398" y2="606"/>
+            </g>
+
+            <rect
+                    class="raid-warning-symbol"
+                    x="271"
+                    y="488"
+                    width="16"
+                    height="60"/>
+
+            <rect
+                    class="raid-warning-symbol"
+                    x="271"
+                    y="555"
+                    width="16"
+                    height="16"/>
+        </g>
+
+        <text class="raid-cls-4 raid-text" transform="translate(392.3 556.42)"><tspan x="0" y="0">RAID DETECTED</tspan></text>
+
+        <g id="raid-warndreieck-right">
+            <polygon
+                    class="raid-warning-main"
+                    points="1613.07 430.37 1519.67 592.15 1706.48 592.15"/>
+
+            <polygon
+                    class="raid-warning-inner"
+                    points="1613.07 462 1546.13 578 1679.13 578"/>
+
+            <!-- top accent: idles upward -->
+            <g class="raid-warning-accent-corner raid-warning-accent-corner-top">
+                <line class="raid-warning-accent-line" x1="1613.07" y1="400" x2="1585.13" y2="446"/>
+                <line class="raid-warning-accent-line" x1="1613.07" y1="400" x2="1640.13" y2="446"/>
+            </g>
+
+            <!-- left accent: idles down-left -->
+            <g class="raid-warning-accent-corner raid-warning-accent-corner-left">
+                <line class="raid-warning-accent-line" x1="1494.13" y1="606" x2="1554.13" y2="606"/>
+                <line class="raid-warning-accent-line" x1="1494.13" y1="606" x2="1515.13" y2="570"/>
+            </g>
+
+            <!-- right accent: idles down-right -->
+            <g class="raid-warning-accent-corner raid-warning-accent-corner-right">
+                <line class="raid-warning-accent-line" x1="1672.13" y1="606" x2="1732.13" y2="606"/>
+                <line class="raid-warning-accent-line" x1="1711.13" y1="570" x2="1732.13" y2="606"/>
+            </g>
+
+            <rect
+                    class="raid-warning-symbol"
+                    x="1605.13"
+                    y="488"
+                    width="16"
+                    height="60"/>
+
+            <rect
+                    class="raid-warning-symbol"
+                    x="1605.13"
+                    y="555"
+                    width="16"
+                    height="16"/>
+        </g>
+
+        <circle class="raid-cls-1 raid-line raid-node" cx="1783.91" cy="681.75" r="16.04"/>
+        <circle class="raid-cls-1 raid-line raid-node" cx="694.92" cy="1014.06" r="16.04"/>
+        <circle class="raid-cls-1 raid-line raid-node raid-node-left" cx="97.53" cy="373.41" r="16.04"/>
+        <rect id="raid-shine-sweep-unique" x="0" y="40" width="260" height="1020" fill="url(#raid-shine-gradient-unique-unique)"/>
+    </svg>
+</div>
+</body>
+</html>

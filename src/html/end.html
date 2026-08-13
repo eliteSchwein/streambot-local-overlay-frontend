@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="module" src="/dist/app.js"></script>
+    <link rel="stylesheet" href="/dist/app.css">
+    <meta charset="UTF-8">
+    <title>Timer</title>
+</head>
+<body  data-controller="visible" data-id="end" style="display: none">
+    <div class="timer timer-badge">
+        <div class="timer-container" data-controller="timer" data-timer-name="na">
+            <div class="stack" style="--stacks: 3;">
+                <span style="--index: 0;">Stream finished</span>
+                <span style="--index: 1;">Stream finished</span>
+                <span style="--index: 2;">Stream finished</span>
+            </div>
+        </div>
+        <svg class="timer-background" data-controller="svg" data-src="/timer_badge.svg">
+        </svg>
+    </div>
+</body>
+</html>

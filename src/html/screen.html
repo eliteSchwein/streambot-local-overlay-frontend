@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="module" src="/dist/app.js"></script>
+    <link rel="stylesheet" href="/dist/app.css">
+    <meta charset="UTF-8">
+    <title>Horizontal</title>
+    <style>
+        .background img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.5);
+        }
+    </style>
+</head>
+<body>
+<template path="partials/background.html"/>
+
+<div style="position: absolute;top:0;left:0;width:500px;height:300px">
+    <template path="partials/badge.html"/>
+</div>
+
+<div style="position: absolute;top:0;right:0;width:1000px;height:800px;">
+    <template path="partials/alert.html" />
+</div>
+
+<div style="position: absolute;top:0;left:0;width:100%;height:100%;">
+    <template path="partials/raidalert.html" />
+</div>
+
+<div style="position: absolute;bottom:0;left:0;width:700px;height:200px">
+    <template path="partials/music.html" />
+</div>
+</body>
+</html>

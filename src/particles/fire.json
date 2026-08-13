@@ -1,0 +1,86 @@
+{
+  "particles": {
+    "color": {
+      "value": [
+        "#ffeb99",
+        "#ffd15c",
+        "#ff8c00",
+        "#ff4500",
+        "#b31200"
+      ]
+    },
+    "paint": {
+      "fill": {
+        "enable": true,
+        "color": {
+          "value": ["#ffeb99", "#ffd15c", "#ff8c00", "#ff4500", "#b31200"]
+        }
+      }
+    },
+    "number": {
+      "value": 250
+    },
+    "shape": {
+      "type": "circle"
+    },
+    "size": {
+      "value": {
+        "min": 2,
+        "max": 8
+      },
+      "animation": {
+        "enable": true,
+        "speed": 12,
+        "sync": false,
+        "startValue": "max",
+        "destroy": "min"
+      }
+    },
+    "opacity": {
+      "value": {
+        "min": 0.05,
+        "max": 0.8
+      },
+      "animation": {
+        "enable": true,
+        "speed": 3,
+        "sync": false,
+        "startValue": "max",
+        "destroy": "min"
+      }
+    },
+    "move": {
+      "enable": true,
+      "direction": "top",
+      "speed": {
+        "min": 2,
+        "max": 10
+      },
+      "drift": {
+        "min": -3,
+        "max": 3
+      },
+      "random": true,
+      "outModes": {
+        "default": "destroy"
+      }
+    },
+    "links": {
+      "enable": false
+    }
+  },
+  "emitters": {
+    "position": {
+      "x": 50,
+      "y": 100
+    },
+    "size": {
+      "width": 100,
+      "height": 0
+    },
+    "rate": {
+      "quantity": 10,
+      "delay": 0.03
+    }
+  }
+}

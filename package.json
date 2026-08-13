@@ -1,0 +1,75 @@
+{
+  "name": "stream-overlord",
+  "version": "1.0.0",
+  "description": "My Twitch Overlay and Bot",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "rm -rf dist && esbuild src/App.ts --bundle --minify --tree-shaking=true --target=es2020 --platform=browser --format=esm --splitting --outdir=dist --entry-names=app --chunk-names=chunks/[name]-[hash] --asset-names=static/[name]-[hash] --public-path=/dist --color=true --external:*.mp4 --external:*.svg --external:*.gif --external:*.webp --loader:.woff=copy --loader:.woff2=copy --loader:.eot=copy --loader:.ttf=copy",
+    "build:dev": "rm -rf dist/* && esbuild --watch src/App.ts --watch --tree-shaking=true --target=es2020 --bundle --color=true --platform=browser --external:*.mp4 --external:*.svg --external:*.gif --loader:.woff=copy --loader:.woff2=copy --loader:.eot=copy --loader:.ttf=copy --external:*.webp --asset-names=[name] --outfile=dist/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eliteSchwein/stream-local-overlay-frontend.git"
+  },
+  "keywords": [
+    "twitch"
+  ],
+  "author": "tludwig-dev",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/eliteSchwein/streambot-local-overlay-frontend/issues"
+  },
+  "homepage": "https://github.com/eliteSchwein/streambot-local-overlay-frontend#readme",
+  "devDependencies": {
+    "@hotwired/stimulus": "^3.2.2",
+    "@mdi/font": "^7.4.47",
+    "@types/body-parser": "^1.19.6",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/lodash": "^4.17.25",
+    "@types/node": "^26.1.2",
+    "@types/readline-sync": "^1.4.8",
+    "@types/ws": "^8.18.1",
+    "async-wait-until": "^2.0.31",
+    "axios": "^1.19.0",
+    "bootstrap": "^5.3.8",
+    "brace-expansion": "5.0.9",
+    "bytes": "^3.1.2",
+    "colorts": "^0.1.63",
+    "diff": "9.0.0",
+    "esbuild": "^0.28.1",
+    "express": "^5.2.1",
+    "form-data": "^4.0.6",
+    "glob": "^13.0.6",
+    "js-conf-parser": "^1.0.3",
+    "lodash": "^4.18.1",
+    "minimatch": "10.2.6",
+    "node-fetch": "^3.3.2",
+    "npm-check-updates": "^23.0.0",
+    "path-to-regexp": "8.4.2",
+    "picomatch": "4.0.5",
+    "qs": "6.15.3",
+    "querystring": "^0.2.1",
+    "readline-sync": "^1.4.10",
+    "regex-parser": "^2.3.1",
+    "stacktrace-js": "^2.0.2",
+    "ts-node": "^10.9.2",
+    "tsparticles": "^4.3.2",
+    "typescript": "^7.0.2",
+    "undici": "8.9.0",
+    "uuid": "^14.0.1",
+    "websocket-ts": "^2.3.0",
+    "ws": "^8.21.1"
+  },
+  "dependencies": {
+    "@dotlottie/player-component": "^2.7.12",
+    "@tsparticles/shape-text": "^4.3.2",
+    "cors": "^2.8.6",
+    "lottie-web": "^5.13.0",
+    "multer": "^2.2.0"
+  },
+  "allowScripts": {
+    "@tsparticles/engine": true,
+    "esbuild": true
+  }
+}

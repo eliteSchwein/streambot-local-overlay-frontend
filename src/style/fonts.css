@@ -1,0 +1,59 @@
+@font-face {
+    font-family: Silkscreen;
+    src: url(../fonts/Silkscreen/Silkscreen-Regular.ttf);
+}
+
+@font-face {
+    font-family: Orbitron;
+    src: url(../fonts/Orbitron/static/Orbitron-Regular.ttf);
+}
+
+@font-face {
+    font-family: Lobster;
+    src: url(../fonts/Lobster/Lobster-Regular.ttf);
+}
+
+@font-face {
+    font-family: Audiowide;
+    src: url(../fonts/Audiowide/Audiowide-Regular.ttf);
+}
+
+@font-face {
+    font-family: "Doto";
+    src: url(../fonts/Doto/Doto-VariableFont_ROND,wght.ttf) format("truetype");
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+.font-silkscreen {
+    font-family: Silkscreen, sans-serif;
+}
+
+.font-orbitron {
+    font-family: Orbitron, sans-serif;
+}
+
+.font-lobster {
+    font-family: Lobster, sans-serif;
+}
+
+.font-audiowide {
+    font-family: Audiowide, sans-serif;
+}
+
+.font-doto {
+    font-family: "Doto", sans-serif;
+}
+
+.font-size-1 { font-size: 5rem; }
+
+.font-thin       { font-weight: 100; }
+.font-extra-light { font-weight: 200; }
+.font-light      { font-weight: 300; }
+.font-normal     { font-weight: 400; }
+.font-medium     { font-weight: 500; }
+.font-semi-bold  { font-weight: 600; }
+.font-bold       { font-weight: 700; }
+.font-extra-bold { font-weight: 800; }
+.font-black      { font-weight: 900; }

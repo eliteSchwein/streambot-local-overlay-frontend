@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="module" src="/dist/app.js"></script>
+    <link rel="stylesheet" href="/dist/app.css">
+    <meta charset="UTF-8">
+    <title>Timer</title>
+</head>
+<body data-controller="visible" data-id="start" style="display: none">
+<div class="timer timer-badge start-badge">
+    <div class="timer-container flex-column" data-controller="timer info" data-timer-name="start">
+        <div class="stack" style="--stacks: 3;">
+            <span style="--index: 0;">Stream start bald</span>
+            <span style="--index: 1;">Stream start bald</span>
+            <span style="--index: 2;">Stream start bald</span>
+        </div>
+        <div class="d-flex">
+            <div class="stack" style="--stacks: 3;">
+                <span style="--index: 0;" data-timer-target="leadingMinute">9</span>
+                <span style="--index: 1;" data-timer-target="leadingMinute">9</span>
+                <span style="--index: 2;" data-timer-target="leadingMinute">9</span>
+            </div>
+            <div class="stack" style="--stacks: 3;">
+                <span style="--index: 0;" data-timer-target="lastMinute">9</span>
+                <span style="--index: 1;" data-timer-target="lastMinute">9</span>
+                <span style="--index: 2;" data-timer-target="lastMinute">9</span>
+            </div>
+            <div class="stack" style="--stacks: 3;">
+                <span style="--index: 0;">:</span>
+                <span style="--index: 1;">:</span>
+                <span style="--index: 2;">:</span>
+            </div>
+            <div class="stack" style="--stacks: 3;">
+                <span style="--index: 0;" data-timer-target="leadingSecond">9</span>
+                <span style="--index: 1;" data-timer-target="leadingSecond">9</span>
+                <span style="--index: 2;" data-timer-target="leadingSecond">9</span>
+            </div>
+            <div class="stack" style="--stacks: 3;">
+                <span style="--index: 0;" data-timer-target="lastSecond">9</span>
+                <span style="--index: 1;" data-timer-target="lastSecond">9</span>
+                <span style="--index: 2;" data-timer-target="lastSecond">9</span>
+            </div>
+        </div>
+        <div class="stack" style="--stacks: 3;">
+            <span style="--index: 0;">es wird gespielt:</span>
+            <span style="--index: 1;">es wird gespielt:</span>
+            <span style="--index: 2;">es wird gespielt:</span>
+        </div>
+        <div class="stack text-truncate mw-80" style="--stacks: 3;">
+            <span style="--index: 0;" class="text-truncate" data-info="game">LANGESLANGESLANGES</span>
+            <span style="--index: 1;" class="text-truncate" data-info="game">LANGESLANGESLANGES</span>
+            <span style="--index: 2;" class="text-truncate" data-info="game">LANGESLANGESLANGES</span>
+        </div>
+    </div>
+    <svg class="timer-background" data-controller="svg" data-src="/alert_overlay.svg">
+    </svg>
+</div>
+</body>
+</html>

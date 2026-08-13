@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="module" src="/dist/app.js"></script>
+    <link rel="stylesheet" href="/dist/app.css">
+    <meta charset="UTF-8">
+    <title>Silly</title>
+    <style>
+        body {
+            height: 100vh;
+        }
+        #donation_banner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 300px;
+        }
+        .donation_container {
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            width: 400px;
+            height: 150px;
+            position: relative;
+        }
+
+        .donation_container iframe {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 20px;
+        }
+        .donation_wrapper {
+            padding: 0 200px;
+        }
+        #alert {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -90%);
+            transition-duration: 0.25s;
+            transition-timing-function: ease-in-out;
+        }
+        #alert .alert_container {
+            position: relative;
+            height: 250px;
+            width: 650px;
+        }
+        #alert .alert_video,
+        #alert .alert_image {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+        }
+        #alert .alert_video video,
+        #alert .alert_image img {
+            width: 100%;
+            height: calc(100% - 50px);
+            object-fit: cover;
+        }
+        #alert .alert_video {
+            overflow: hidden;
+        }
+        #alert .alert_video video {
+            width: 100%;
+            height: 118%;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+            margin-top: -30px;
+        }
+        #alert .alert_text {
+            position: absolute;
+            top: 88px;
+            left: 0;
+            right: 0;
+            margin-inline: auto;
+            width: 77%;
+            font-size: 32px;
+            color: #fff;
+            text-align: center;
+        }
+        #newworldlogo {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 256px;
+            height: 256px;
+            filter: opacity(0.3);
+        }
+    </style>
+</head>
+<body>
+<img id="newworldlogo" src="/compressed/silly/NEW-WORLD3Logo.webp">
+<div id="alert" data-alert-channel="general" data-controller="alert" style="opacity: 0">
+    <div class="d-none"><i class="alert-logo mdi mdi-pen" data-alert-target="element" data-alert-element-type="icon"></i></div>
+    <div class="d-none"><iframe data-alert-target="element" data-alert-element-type="iframe"></iframe></div>
+    <div class="d-none"><img src="" data-alert-target="element" data-alert-element-type="logo"/></div>
+    <div class="alert_video" data-alert-target="element" data-alert-element-type="videoContainer">
+        <video data-alert-target="element" data-alert-element-type="video" style="display: none; opacity: 0">
+            <source src="" type="video/mp4">
+        </video>
+    </div>
+    <div class="alert_container">
+        <div class="alert_image">
+            <img data-alert-target="element" data-alert-element-type="image" class="d-none" src="/compressed/silly/Follower.webp" alt=""/>
+        </div>
+        <div class="alert_text font-lobster" data-alert-target="element" data-alert-element-type="content">Sillypopilly</div>
+    </div>
+</div>
+</body>
+</html>

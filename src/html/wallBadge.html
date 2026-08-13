@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="module" src="/dist/app.js"></script>
+    <link rel="stylesheet" href="/dist/app.css">
+    <meta charset="UTF-8">
+    <title>Badge</title>
+</head>
+<body>
+    <div class="badge wall-badge hologram-badge" data-controller="badge particles" data-particles-preset="science">
+        <div class="badge-container">
+            <div class="logo" data-badge-target="logo"></div>
+            <div class="badge-content">
+                <div class="badge-title stack" style="--stacks: 3;" data-badge-active-type="text_only">
+                    <img data-badge-target="titleImage" style="display: none">
+                    <span style="--index: 0;" data-badge-target="title">eliteSCHW31N</span>
+                    <span style="--index: 1;" data-badge-target="title">eliteSCHW31N</span>
+                    <span style="--index: 2;" data-badge-target="title">eliteSCHW31N</span>
+                </div>
+                <div class="badge-subtitle stack" style="--stacks: 3;" data-badge-active-type="text_only">
+                    <span style="--index: 0;" data-badge-target="subtitle">mehr als ein SCHW31N</span>
+                    <span style="--index: 1;" data-badge-target="subtitle">mehr als ein SCHW31N</span>
+                    <span style="--index: 2;" data-badge-target="subtitle">mehr als ein SCHW31N</span>
+                </div>
+                <div class="badge-title" style="height: 120px" data-badge-active-type="image_only">
+                    <img xmlns="http://www.w3.org/1999/xhtml" data-badge-target="fullImage" class="badge-image-only"/>
+                </div>
+            </div>
+        </div>
+        <div class="expand-container d-none">
+        </div>
+    </div>
+</body>
+</html>

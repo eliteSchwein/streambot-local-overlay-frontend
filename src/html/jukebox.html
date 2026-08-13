@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="module" src="/dist/app.js"></script>
+    <link rel="stylesheet" href="/dist/app.css">
+    <meta charset="UTF-8">
+    <title>Jukebox</title>
+</head>
+<body>
+<div data-controller="music">
+    <svg id="jukebox" class="jukebox-svg" data-name="Jukebox" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1925.66 1082.17">
+        <defs>
+            <style>
+                .jukebox-outline {
+                    fill: none;
+                    stroke: var(--theme-color);
+                    stroke-miterlimit: 10;
+                    stroke-width: 8px;
+                }
+
+                .jukebox-opacity-muted {
+                    opacity: .3;
+                }
+
+                .jukebox-fill-muted {
+                    fill: #4d4d4d;
+                }
+
+                .jukebox-fill-white {
+                    fill: #fff;
+                }
+
+                .jukebox-font-bold {
+                    font-family: "Doto";
+                    font-variation-settings: 'wght' 700;
+                    font-weight: 700;
+                }
+
+                .jukebox-fill-accent {
+                    fill: var(--theme-color);
+                }
+
+                .jukebox-stroke-accent {
+                    stroke: var(--theme-color);
+                }
+
+                .jukebox-fill-background {
+                    fill: #2b2b2b;
+                }
+
+                .jukebox-text-regular {
+                    fill: #fff;
+                    font-family: "Orbitron";
+                    font-size: 50px;
+                    font-variation-settings: 'wght' 400;
+                }
+
+                .jukebox-text-title {
+                    fill: var(--theme-color);
+                    font-size: 80px;
+                }
+
+                .jukebox-text-artist {
+                    fill: #fff;
+                    font-size: 70px;
+                }
+
+                .jukebox-track-info-html {
+                    display: flex;
+                    flex-direction: column;
+                    overflow: hidden;
+                    line-height: 1.05;
+                    width: 100%;
+                    text-align: center;
+                }
+
+                .jukebox-track-info-html .jukebox-text-title {
+                    color: var(--theme-color);
+                    fill: unset;
+                    display: block;
+                    width: 100%;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+
+                .jukebox-track-info-html .jukebox-text-artist {
+                    color: #fff;
+                    fill: unset;
+                    display: block;
+                    width: 100%;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+            </style>
+        </defs>
+        <rect id="jukebox-background" class="jukebox-fill-background jukebox-background" width="1920" height="1082.17"/>
+        <g id="jukebox-visualizer" class="jukebox-opacity-muted jukebox-visualizer" data-controller="cava" data-cava-target="jukebox">
+            <rect id="jukebox-visualizer-bar-06" class="jukebox-fill-accent jukebox-visualizer-bar" x="17.24" y="5.5" width="21.54" height="530"/>
+            <rect id="jukebox-visualizer-bar-06" class="jukebox-fill-accent jukebox-visualizer-bar" x="47.24" y="5.5" width="21.54" height="530"/>
+        </g>
+        <g id="jukebox-visualizer" class="jukebox-opacity-muted jukebox-visualizer" data-controller="cava" data-cava-target="jukebox" data-cava-invert-bars="true">
+            <rect id="jukebox-visualizer-bar-06" class="jukebox-fill-accent jukebox-visualizer-bar" x="17.24" y="535.5" width="21.54" height="530" fill="#fff"/>
+            <rect id="jukebox-visualizer-bar-06" class="jukebox-fill-accent jukebox-visualizer-bar" x="47.24" y="535.5" width="21.54" height="530"/>
+        </g>
+        <foreignObject
+                id="jukebox-track-info"
+                class="jukebox-track-info"
+                x="50"
+                y="324.29"
+                width="1825.66"
+                height="180">
+
+            <div class="jukebox-font-bold jukebox-track-info-html"
+                 xmlns="http://www.w3.org/1999/xhtml">
+
+        <span id="jukebox-song-title"
+              class="jukebox-song-title jukebox-text-title"
+              data-music-element="title"></span>
+
+                <span id="jukebox-artist-name"
+                      class="jukebox-artist-name jukebox-text-artist"
+                      data-music-element="artist">
+            Artist Name
+        </span>
+            </div>
+        </foreignObject>
+        <polygon id="jukebox-progress-track" class="jukebox-fill-muted jukebox-progress-track" points="1850.93 624.07 965.23 624.1 70.43 624.14 70.43 639.07 965.23 639.03 1850.93 639 1850.93 624.07"/>
+        <circle id="jukebox-main-button-ring" class="jukebox-outline jukebox-main-button-ring" cx="982.69" cy="778.25" r="71.82"/>
+        <line
+                id="jukebox-progress-fill"
+                class="jukebox-stroke-accent jukebox-progress-fill"
+                x1="70.43"
+                y1="631.57"
+                x2="770"
+                y2="631.57"
+                stroke-width="16"
+                stroke-linecap="butt"
+                data-music-element="progress-bar"
+                data-music-max-x="1850.93"
+        />
+        <polygon id="jukebox-volume-track" class="jukebox-fill-muted jukebox-volume-track" points="1262.36 949.29 983.5 949.32 701.77 949.36 701.77 964.29 983.5 964.25 1262.36 964.22 1262.36 949.29"/>
+        <line
+                id="jukebox-volume-fill"
+                class="jukebox-stroke-accent jukebox-volume-fill"
+                x1="701.77"
+                y1="956.79"
+                x2="1049.76"
+                y2="956.79"
+                stroke-width="16"
+                stroke-linecap="butt"
+                data-music-max-x="1262.36"
+                data-music-element="volume-bar"
+        />
+        <text id="jukebox-time-current" class="jukebox-text-regular jukebox-time jukebox-time-current" transform="translate(74.04 686.67)"><tspan x="0" y="0" data-music-element="playtime">1:37</tspan></text>
+        <text id="jukebox-time-remaining" class="jukebox-text-regular jukebox-time jukebox-time-remaining" transform="translate(1701.6421 686.6672)"><tspan x="0" y="0" data-music-element="remainingtime">-2:45</tspan></text>
+        <polygon id="jukebox-next-icon-left" class="jukebox-fill-white jukebox-control-icon jukebox-next-icon jukebox-next-icon-left" points="1232.7 777.74 1179.48 808.46 1179.48 747.02 1232.7 777.74"/>
+        <polygon id="jukebox-next-icon-right" class="jukebox-fill-white jukebox-control-icon jukebox-next-icon jukebox-next-icon-right" points="1285.78 777.74 1232.57 808.46 1232.57 747.02 1285.78 777.74"/>
+        <text id="jukebox-volume-text" class="jukebox-text-regular jukebox-volume-text" transform="translate(938.7479 1028.0346)"><tspan x="0" y="0" data-music-element="volume-text">65%</tspan></text>
+        <text id="jukebox-song-request-status" class="jukebox-text-regular jukebox-song-request-status" transform="translate(743.1 108.34)"><tspan x="0" y="0" data-music-element="srActive">song request on</tspan><tspan x="0" y="0" data-music-element="srInactive">song request off</tspan></text>
+        <polyline id="jukebox-left-line-top" class="jukebox-outline jukebox-deco-line jukebox-left-line jukebox-left-line-top" points="910.87 778.25 834.01 778.25 812.48 711.64 764.55 711.64"/>
+        <polyline id="jukebox-left-line-bottom" class="jukebox-outline jukebox-deco-line jukebox-left-line jukebox-left-line-bottom" points="689.26 845.3 813.95 845.3 835.49 778.69 912.34 778.69"/>
+        <circle id="jukebox-left-node" class="jukebox-outline jukebox-deco-node jukebox-left-node" cx="673.59" cy="845.3" r="15.68"/>
+        <polyline id="jukebox-right-line-top" class="jukebox-outline jukebox-deco-line jukebox-right-line jukebox-right-line-top" points="1053.74 778.25 1130.6 778.25 1152.13 711.64 1200.07 711.64"/>
+        <polyline id="jukebox-right-line-bottom" class="jukebox-outline jukebox-deco-line jukebox-right-line jukebox-right-line-bottom" points="1275.35 845.3 1150.66 845.3 1129.13 778.69 1052.27 778.69"/>
+        <circle id="jukebox-right-node" class="jukebox-outline jukebox-deco-node jukebox-right-node" cx="1291.02" cy="845.3" r="15.68"/>
+        <rect id="jukebox-pause-bar-left" class="jukebox-fill-white jukebox-control-icon jukebox-pause-icon jukebox-pause-bar-left" x="954.89" y="746.25" width="21.54" height="65"/>
+        <rect id="jukebox-pause-bar-right" class="jukebox-fill-white jukebox-control-icon jukebox-pause-icon jukebox-pause-bar-right" x="988.96" y="745.24" width="21.54" height="65"/>
+        <polygon id="jukebox-prev-icon-right" class="jukebox-fill-white jukebox-control-icon jukebox-prev-icon jukebox-prev-icon-right" points="732.69 775 785.9 805.72 785.9 744.28 732.69 775"/>
+        <polygon id="jukebox-prev-icon-left" class="jukebox-fill-white jukebox-control-icon jukebox-prev-icon jukebox-prev-icon-left" points="679.61 775 732.82 805.72 732.82 744.28 679.61 775"/>
+    </svg>
+</div>
+</body>
+</html>

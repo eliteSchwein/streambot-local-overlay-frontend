@@ -1,0 +1,225 @@
+.badge {
+    /*background: rgba(52, 52, 52, 0.71);*/
+    border-radius: 0!important;
+    position: relative;
+    /*margin: 20px;*/
+}
+
+.badge canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.badge .badge-container .logo {
+    height: 107px;
+    width: 100px;
+    margin-top: 5px;
+    background-size: cover;
+    background-image: url("/compressed/logo.webp");
+}
+
+.badge .badge-container {
+    color: white;
+    padding-left: 10px;
+    height: 100px;
+    border-radius: 0;
+    width: 650px;
+    position: relative;
+    z-index: 999;
+}
+
+.badge .badge-container .badge-content {
+    width: 370px;
+    position: absolute;
+    top: 18px;
+    left: 140px;
+    height: 80px;
+}
+
+.badge .badge-container.badge-full .content {
+    width: 100%;
+    left: 0;
+}
+
+.badge .badge-container .badge-subtitle {
+    color: #e5e5e5;
+    width: 100%;
+    height: 50%;
+    text-align: left;
+    font-size: 25px;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.badge .badge-container .badge-title {
+    place-items: start;
+    width: 100%;
+    height: 60%;
+    text-align: left;
+    font-size: 40px;
+    font-family: 'Doto', sans-serif;
+    grid-template-columns: 1fr;
+    align-items: start;
+    justify-content: start;
+    align-content: start;
+    font-weight: 700;
+}
+
+.badge .expand-container {
+    transition-duration: 0.25s;
+    transition-timing-function: ease-in-out;
+    height: 0;
+}
+
+.badge.expand .expand-container {
+    height: 300px;
+}
+
+.badge .badge-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.badge.wall-badge {
+    background: rgba(0, 0, 0, 0.63);
+    margin-top: 30px;
+    margin-left: 15px;
+}
+
+
+.badge.wall-badge .badge-container {
+    color: white;
+    padding-left: 5px;
+    padding-right: 5px;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    border-radius: 0;
+    width: auto;
+    position: relative;
+    z-index: 999;
+    margin-bottom: 80px;
+}
+.badge.wall-badge .badge-container .badge-title {
+    margin-top: 30px;
+    align-items: center;
+    justify-content: center;
+    align-content: center;
+    place-items: center;
+}
+.badge.wall-badge .badge-container .badge-subtitle {
+    align-items: center;
+    justify-content: center;
+    align-content: center;
+    place-items: center;
+}
+
+.badge.wall-badge .badge-container .logo {
+    background-size: cover;
+    margin-left: auto;
+    margin-right: auto;
+    height: 157px;
+    width: 150px;
+    margin-top: 30px;
+}
+
+
+.badge.wall-badge .badge-container .badge-content {
+    position: relative;
+}
+.badge.wall-badge .badge-content {
+    top: unset;
+    left: unset;
+    margin-top: 30px;
+}
+
+.badge-image-only {
+    width: 100%!important;
+    height: 100%!important;
+    object-fit: contain;
+}
+
+.badge.wall-badge.hologram-badge {
+    background:
+            radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--theme-color) 35%, transparent), transparent 45%),
+            linear-gradient(180deg, color-mix(in srgb, var(--theme-color) 18%, transparent), rgba(0, 8, 14, 0.38)),
+            rgba(0, 8, 14, 0.38);
+
+    border: 1px solid color-mix(in srgb, var(--theme-color) 65%, transparent);
+    box-shadow:
+            0 0 18px color-mix(in srgb, var(--theme-color) var(--theme-glow-alpha-high, 70%), transparent),
+            inset 0 0 35px color-mix(in srgb, var(--theme-color) var(--theme-glow-alpha-low, 25%), transparent);
+
+    overflow: hidden;
+    backdrop-filter: blur(3px);
+    animation: hologram-flicker 3.5s infinite;
+}
+
+.badge.wall-badge.hologram-badge::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 998;
+    background: repeating-linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--theme-color) 22%, transparent) 0,
+            color-mix(in srgb, var(--theme-color) 22%, transparent) 1px,
+            transparent 2px,
+            transparent 6px
+    );
+    mix-blend-mode: screen;
+    animation: hologram-scanlines 2.5s linear infinite;
+}
+
+.badge.wall-badge.hologram-badge::after {
+    content: "";
+    position: absolute;
+    inset: -30%;
+    pointer-events: none;
+    z-index: 997;
+    background: linear-gradient(
+            115deg,
+            transparent 35%,
+            color-mix(in srgb, var(--theme-color) var(--theme-shine-opacity-peak, 55%), transparent) 48%,
+            rgba(255, 255, 255, var(--theme-glow-alpha-white, 0.18)) 52%,
+            transparent 65%
+    );
+    animation: hologram-sweep 5s ease-in-out infinite;
+}
+
+.badge.wall-badge.hologram-badge .badge-container {
+    color: white;
+    text-shadow:
+            0 0 4px color-mix(in srgb, var(--theme-color) 90%, transparent),
+            0 0 12px color-mix(in srgb, var(--theme-color) 60%, transparent);
+}
+
+.badge.wall-badge.hologram-badge .logo {
+    filter:
+            drop-shadow(0 0 8px color-mix(in srgb, var(--theme-color) 90%, transparent))
+            drop-shadow(0 0 18px color-mix(in srgb, var(--theme-color) 55%, transparent));
+    opacity: 0.88;
+}
+
+@keyframes hologram-scanlines {
+    from { transform: translateY(-12px); }
+    to { transform: translateY(12px); }
+}
+
+@keyframes hologram-sweep {
+    0%, 100% { transform: translateX(-45%) rotate(0deg); opacity: 0; }
+    45% { opacity: 0.75; }
+    60% { transform: translateX(45%) rotate(0deg); opacity: 0; }
+}
+
+@keyframes hologram-flicker {
+    0%, 100% { opacity: 1; transform: translateZ(0); }
+    8% { opacity: 0.92; }
+    9% { opacity: 1; }
+    38% { opacity: 0.96; }
+    39% { opacity: 1; }
+    72% { opacity: 0.9; }
+    73% { opacity: 1; }
+}

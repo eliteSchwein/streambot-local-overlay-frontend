@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <script type="module" src="/dist/app.js"></script>
+    <link rel="stylesheet" href="/dist/app.css">
+    <meta charset="UTF-8">
+    <title>Shoutout</title>
+</head>
+<body>
+<div class="shoutout toggle" data-controller="shoutout">
+    <div class="new-alert-box dynamic" style="width: calc(100% - 50px);height: calc(100vh - 50px);">
+        <div class="new-alert-container">
+            <div class="shoutout-content-container">
+                <div class="shoutout-content">
+                    <div data-shoutout-target="channelname">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</div>
+                </div>
+                <iframe
+                        data-shoutout-target="iframe"
+                        data-src="https://streamgood.gg/clips/player?mode=random&current_game=false&info=false&volume=50&max_length=60&filter_long_videos=false&show_timer=false&recent_clips=0&channel=${channel}"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
