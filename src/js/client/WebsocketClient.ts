@@ -49,14 +49,18 @@ export default class WebsocketClient {
             this.websocket.addEventListener(WebsocketEvent.message, (websocket, event) => {
                 const data = JSON.parse(event.data)
 
-                if(!data.method && !data.params && data.method !== "notify_service_reload" && data.params.type !== "overlay") return
+                if (
+                    data.method !== "notify_service_reload" ||
+                    data.params?.type !== "overlay"
+                ) {
+                    return
+                }
 
                 console.log(
                     "[cold-reload] received reload signal, reloading page"
-                );
+                )
 
-                window.location.reload(true);
-
+                window.location.reload()
             })
 
             if (this.reconnecting && !this.hasReloadedAfterReconnect) {
