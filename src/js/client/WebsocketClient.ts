@@ -43,7 +43,21 @@ export default class WebsocketClient {
                 "notify_game_update",
                 "notify_shield_mode",
                 "notify_test_mode",
+                "notify_service_reload",
             ]);
+
+            this.websocket.addEventListener(WebsocketEvent.message, (websocket, event) => {
+                const data = JSON.parse(event.data)
+
+                if(!data.method && !data.params && data.method !== "notify_service_reload" && data.params.type !== "overlay") return
+
+                console.log(
+                    "[cold-reload] received reload signal, reloading page"
+                );
+
+                window.location.reload(true);
+
+            })
 
             if (this.reconnecting && !this.hasReloadedAfterReconnect) {
                 this.hasReloadedAfterReconnect = true;
