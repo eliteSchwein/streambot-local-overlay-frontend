@@ -1,6 +1,6 @@
 import { Websocket, WebsocketEvent } from "websocket-ts";
 import { getConfig } from "../helper/ConfigHelper";
-import {sleep} from "../helper/GeneralHelper";
+import {getRandomInt, sleep} from "../helper/GeneralHelper";
 
 declare global {
     interface Window {
