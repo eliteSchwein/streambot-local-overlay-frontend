@@ -35,7 +35,7 @@ import SourceBackgroundController from "./js/controller/SourceBackgroundControll
 import MusicController from "./js/controller/MusicController";
 import VisibleController from "./js/controller/VisibleController";
 import MarqueeController from "./js/controller/MarqueeController";
-import ContenController from "./js/controller/ContenController";
+import ContentController from "./js/controller/ContentController";
 import IFrameController from "./js/controller/IFrameController";
 import {initEffects} from "./js/helper/EffectHelper";
 import CavaController from "./js/controller/CavaController";
@@ -59,8 +59,10 @@ async function init(){
     websocketClient = new WebsocketClient()
     await websocketClient.connect()
 
+    await sleep(100)
+
     const stimulus = Application.start()
-    stimulus.register('content', ContenController)
+    stimulus.register('content', ContentController)
     stimulus.register('background', BackgroundController)
     stimulus.register('badge', BadgeController)
     stimulus.register('alert', AlertController)
@@ -81,7 +83,7 @@ async function init(){
     stimulus.register('particles', ParticlesController)
     stimulus.register('media', MediaController)
 
-    await sleep(250)
+    await sleep(100)
 
     websocketClient.registerEndpoints(['notify_game_update', 'notify_shield_mode', 'notify_test_mode'])
 }
