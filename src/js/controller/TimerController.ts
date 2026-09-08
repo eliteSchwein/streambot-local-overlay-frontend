@@ -5,7 +5,14 @@ import {sleep} from "../helper/GeneralHelper";
 export default class TimerController extends BaseController {
     websocketEndpoints = ['notify_timer']
 
-    static targets = ['leadingMinute', 'lastMinute', 'leadingSecond', 'lastSecond', 'progressBar', 'progressBg']
+    static targets = [
+        'leadingMinute',
+        'lastMinute',
+        'leadingSecond',
+        'lastSecond',
+        'progressBar',
+        'progressBg'
+    ]
 
     declare readonly leadingMinuteTargets: HTMLDivElement[]
     declare readonly lastMinuteTargets: HTMLDivElement[]
@@ -24,18 +31,19 @@ export default class TimerController extends BaseController {
     }
 
     async handleMessage(websocket: Websocket, method: string, data: any) {
-        if(method !== 'notify_timer') return
-
-        if(data.name !== this.name) return
+        if (method !== 'notify_timer') return
+        if (data.name !== this.name) return
 
         this.alertBoxHelper.setTopBarProgress(data.progress)
         this.setCircleProgress(data.progress)
 
         switch (data.action) {
+            case "start":
             case "update":
                 this.element.classList.remove('blink')
                 this.handleTimerUpdate(data)
                 return
+
             case "finish":
                 this.handleTimerUpdate(data)
                 void this.handleTimerFinish(data)
@@ -45,10 +53,11 @@ export default class TimerController extends BaseController {
 
     private async handleTimerFinish(data: any) {
         switch (data.end) {
-            case 'fate':
+            case 'fade':
                 await sleep(1000 * 2)
-                this.element.parentElement.style.opacity = '0'
+                this.element.parentElement!.style.opacity = '0'
                 return
+
             case 'blink':
                 this.element.classList.add('blink')
                 return
@@ -56,38 +65,31 @@ export default class TimerController extends BaseController {
     }
 
     private handleTimerUpdate(data: any) {
-        this.element.parentElement.style.opacity = null
-        const date = new Date(data.time * 1000);
-        let hours:any = date.getUTCHours();
-        let minutes: any = date.getUTCMinutes();
-        let seconds: any = date.getSeconds();
+        this.element.parentElement!.style.opacity = ''
 
-        if (hours < 10) {hours = "0"+hours;}
-        if (minutes < 10) {minutes = "0"+minutes;}
-        if (seconds < 10) {seconds = "0"+seconds;}
+        const date = new Date(data.time * 1000)
 
-        hours = `${hours}`
-        minutes = `${minutes}`
-        seconds = `${seconds}`
+        const minutes = String(date.getUTCMinutes()).padStart(2, '0')
+        const seconds = String(date.getUTCSeconds()).padStart(2, '0')
 
         const leadingMinute = minutes.substring(0, 1)
         const lastMinute = minutes.substring(1)
         const leadingSecond = seconds.substring(0, 1)
         const lastSecond = seconds.substring(1)
 
-        if(this.leadingMinuteTargets[0].innerHTML !== leadingMinute) {
+        if (this.leadingMinuteTargets[0].innerHTML !== leadingMinute) {
             void this.updateContent('leadingMinute', leadingMinute)
         }
 
-        if(this.lastMinuteTargets[0].innerHTML !== lastMinute) {
+        if (this.lastMinuteTargets[0].innerHTML !== lastMinute) {
             void this.updateContent('lastMinute', lastMinute)
         }
 
-        if(this.leadingSecondTargets[0].innerHTML !== leadingSecond) {
+        if (this.leadingSecondTargets[0].innerHTML !== leadingSecond) {
             void this.updateContent('leadingSecond', leadingSecond)
         }
 
-        if(this.lastSecondTargets[0].innerHTML !== lastSecond) {
+        if (this.lastSecondTargets[0].innerHTML !== lastSecond) {
             void this.updateContent('lastSecond', lastSecond)
         }
     }
@@ -97,33 +99,35 @@ export default class TimerController extends BaseController {
 
         if (Number.isNaN(progressNumber)) return
 
-        const normalizedProgress = progressNumber <= 1
-            ? progressNumber * 100
-            : progressNumber
-
-        const clampedProgress = Math.min(100, Math.max(0, normalizedProgress))
+        const clampedProgress = Math.min(100, Math.max(0, progressNumber))
 
         for (const element of [
             ...this.progressBarTargets,
             ...this.progressBgTargets,
         ]) {
-            element.style.setProperty('--progress', `${clampedProgress}%`)
+            const invert = element.dataset.invertTimerBar === 'true'
+
+            const finalProgress = invert
+                ? 100 - clampedProgress
+                : clampedProgress
+
+            element.style.setProperty('--progress', `${finalProgress}%`)
         }
     }
 
     private async updateContent(type: string, content: string) {
-        for(const element of this[`${type}Targets`]) {
+        for (const element of this[`${type}Targets`]) {
             element.style.display = 'none'
         }
 
-        for(const element of this[`${type}Targets`]) {
+        for (const element of this[`${type}Targets`]) {
             element.innerHTML = content
         }
 
         await sleep(25)
 
-        for(const element of this[`${type}Targets`]) {
-            element.style.display = null
+        for (const element of this[`${type}Targets`]) {
+            element.style.display = ''
         }
     }
 }

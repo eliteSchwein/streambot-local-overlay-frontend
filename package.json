@@ -37,7 +37,7 @@
     "bytes": "^3.1.2",
     "colorts": "^0.1.63",
     "diff": "9.0.0",
-    "esbuild": "^0.28.1",
+    "esbuild": "^0.28.2",
     "express": "^5.2.1",
     "form-data": "^4.0.6",
     "glob": "^13.0.6",
@@ -47,8 +47,8 @@
     "node-fetch": "^3.3.2",
     "npm-check-updates": "^23.0.0",
     "path-to-regexp": "8.4.2",
-    "picomatch": "4.0.5",
-    "qs": "6.15.3",
+    "picomatch": "4.0.7",
+    "qs": "^6.16.0",
     "querystring": "^0.2.1",
     "readline-sync": "^1.4.10",
     "regex-parser": "^2.3.1",
@@ -57,12 +57,12 @@
     "tsparticles": "^4.3.2",
     "typescript": "^7.0.2",
     "undici": "8.9.0",
-    "uuid": "^14.0.1",
+    "uuid": "^14.0.2",
     "websocket-ts": "^2.3.0",
-    "ws": "^8.21.1"
+    "ws": "^8.21.3"
   },
   "dependencies": {
-    "@dotlottie/player-component": "^2.7.12",
+    "@dotlottie/player-component": "^2.7.0",
     "@tsparticles/shape-text": "^4.3.2",
     "cors": "^2.8.6",
     "lottie-web": "^5.13.0",
@@ -70,6 +70,7 @@
   },
   "allowScripts": {
     "@tsparticles/engine": true,
-    "esbuild": true
+    "esbuild": true,
+    "sharp": true
   }
 }
