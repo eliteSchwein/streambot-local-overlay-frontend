@@ -22,9 +22,12 @@ export default class TimerController extends BaseController {
     declare readonly progressBgTargets: HTMLDivElement[]
 
     protected name: string
+    private glitchAnimationFix = false
 
     async postConnect() {
         this.name = this.element.getAttribute('data-timer-name') as string
+        this.glitchAnimationFix =
+            this.element.getAttribute('data-timer-glitchani-fix') === 'true'
     }
 
     async handleGameUpdate(websocket: Websocket, data: any) {
@@ -116,17 +119,27 @@ export default class TimerController extends BaseController {
     }
 
     private async updateContent(type: string, content: string) {
-        for (const element of this[`${type}Targets`]) {
+        const targets = this[`${type}Targets`]
+
+        if (!this.glitchAnimationFix) {
+            for (const element of targets) {
+                element.innerHTML = content
+            }
+
+            return
+        }
+
+        for (const element of targets) {
             element.style.display = 'none'
         }
 
-        for (const element of this[`${type}Targets`]) {
+        for (const element of targets) {
             element.innerHTML = content
         }
 
         await sleep(25)
 
-        for (const element of this[`${type}Targets`]) {
+        for (const element of targets) {
             element.style.display = ''
         }
     }
