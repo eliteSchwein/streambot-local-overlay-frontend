@@ -17,7 +17,6 @@ import "@mdi/font/css/materialdesignicons.css"
 // javascript
 import WebsocketClient from "./js/client/WebsocketClient";
 import {Application} from "@hotwired/stimulus";
-import BackgroundController from "./js/controller/BackgroundController";
 import BadgeController from "./js/controller/BadgeController";
 import fetchConfig from "./js/helper/ConfigHelper";
 import * as packageConfig from '../package.json'
@@ -63,7 +62,6 @@ async function init(){
 
     const stimulus = Application.start()
     stimulus.register('content', ContentController)
-    stimulus.register('background', BackgroundController)
     stimulus.register('badge', BadgeController)
     stimulus.register('alert', AlertController)
     stimulus.register('timer', TimerController)
