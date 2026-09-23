@@ -30,7 +30,6 @@ import SvgController from "./js/controller/SvgController";
 import ToggleController from "./js/controller/ToggleController";
 import RandomClipsController from "./js/controller/RandomClipsController";
 import InfoController from "./js/controller/InfoController";
-import SourceBackgroundController from "./js/controller/SourceBackgroundController";
 import MusicController from "./js/controller/MusicController";
 import VisibleController from "./js/controller/VisibleController";
 import MarqueeController from "./js/controller/MarqueeController";
@@ -71,7 +70,6 @@ async function init(){
     stimulus.register('toggle', ToggleController)
     stimulus.register('random_clips', RandomClipsController)
     stimulus.register('info', InfoController)
-    stimulus.register('source_background', SourceBackgroundController)
     stimulus.register('music', MusicController)
     stimulus.register('visible', VisibleController)
     stimulus.register('marquee', MarqueeController)
