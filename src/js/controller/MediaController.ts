@@ -22,6 +22,7 @@ export default class MediaController extends BaseController {
     protected muted = false
     protected controls = false
     protected originalState?: OriginalMediaState
+    protected mediaErrorHandlers = new WeakSet<MediaElement>()
 
     async connect() {
         super.connect?.()
@@ -126,6 +127,7 @@ export default class MediaController extends BaseController {
 
         if (this.isMediaElement(this.element)) {
             this.mediaElement = this.element
+            this.attachMediaErrorHandler(this.mediaElement)
             return
         }
 
@@ -133,6 +135,7 @@ export default class MediaController extends BaseController {
 
         if (child && this.isMediaElement(child)) {
             this.mediaElement = child
+            this.attachMediaErrorHandler(this.mediaElement)
         }
     }
 
@@ -153,6 +156,10 @@ export default class MediaController extends BaseController {
 
         this.element.classList.add(`media-${type}`)
 
+        // A previous source may have failed and hidden the media element.
+        // Always make a new source visible again before attempting playback.
+        element.hidden = false
+        this.attachMediaErrorHandler(element)
         element.setAttribute('src', src)
 
         if (element instanceof HTMLVideoElement || element instanceof HTMLAudioElement) {
@@ -170,11 +177,13 @@ export default class MediaController extends BaseController {
 
     protected ensureMediaElement(type: MediaType): MediaElement | undefined {
         if (this.mediaElement && this.matchesType(this.mediaElement, type)) {
+            this.attachMediaErrorHandler(this.mediaElement)
             return this.mediaElement
         }
 
         if (this.isMediaElement(this.element) && this.matchesType(this.element, type)) {
             this.mediaElement = this.element
+            this.attachMediaErrorHandler(this.mediaElement)
             return this.mediaElement
         }
 
@@ -187,9 +196,31 @@ export default class MediaController extends BaseController {
 
         if (!this.mediaElement) return undefined
 
+        this.attachMediaErrorHandler(this.mediaElement)
         this.element.appendChild(this.mediaElement)
 
         return this.mediaElement
+    }
+
+    protected attachMediaErrorHandler(element: MediaElement) {
+        if (this.mediaErrorHandlers.has(element)) return
+
+        this.mediaErrorHandlers.add(element)
+
+        element.addEventListener('error', () => {
+            // Do not leave the browser's broken image/video placeholder visible.
+            // The next media update unhides the element before assigning its src.
+            element.hidden = true
+
+            if (element instanceof HTMLVideoElement || element instanceof HTMLAudioElement) {
+                element.pause()
+            }
+
+            if (this.mediaElement === element) {
+                this.element.classList.remove('media-active')
+                this.element.classList.add('media-empty')
+            }
+        })
     }
 
     protected createMediaElement(type: MediaType): MediaElement | undefined {
