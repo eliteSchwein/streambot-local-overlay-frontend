@@ -1,10 +1,14 @@
 import BaseController from "./BaseController";
 import { Websocket } from "websocket-ts";
+import { getConfig } from "../helper/ConfigHelper";
 
 type CavaBar = HTMLDivElement | SVGRectElement
 
 export default class CavaController extends BaseController {
-    websocketEndpoints = ['notify_music_cava']
+    // CAVA is no longer sent through the normal overlay websocket.
+    // The shared websocket is still attached by BaseController so this
+    // controller continues to receive normal game/theme/shield updates.
+    websocketEndpoints: string[] = []
 
     protected bars: CavaBar[] = []
     protected values: number[] = []
@@ -21,12 +25,12 @@ export default class CavaController extends BaseController {
     protected invertBars = false
     protected svgRectData = new Map<SVGRectElement, { y: number, height: number }>()
 
-    protected barCountMismatchFrames = 0
-    protected pendingBarCount = 0
+    protected cavaWebsocket?: globalThis.WebSocket
+    protected cavaReconnectTimer?: number
+    protected cavaReconnectAttempt = 0
+    protected cavaStopped = false
 
-    async connect() {
-        super.connect?.()
-
+    async preConnect() {
         this.isSvgMode = this.element instanceof SVGElement
         this.invertBars = this.element.getAttribute('data-cava-invert-bars') === 'true'
         this.target = this.element.getAttribute('data-cava-target')?.trim() || 'default'
@@ -37,11 +41,129 @@ export default class CavaController extends BaseController {
         }
     }
 
+    async postConnect() {
+        this.cavaStopped = false
+        this.openCavaWebsocket()
+    }
+
+    disconnect() {
+        this.cavaStopped = true
+
+        if (this.cavaReconnectTimer !== undefined) {
+            window.clearTimeout(this.cavaReconnectTimer)
+            this.cavaReconnectTimer = undefined
+        }
+
+        const websocket = this.cavaWebsocket
+        this.cavaWebsocket = undefined
+
+        if (websocket) {
+            websocket.onopen = null
+            websocket.onmessage = null
+            websocket.onerror = null
+            websocket.onclose = null
+
+            try {
+                websocket.close()
+            } catch {
+                // Already closed.
+            }
+        }
+
+        this.resetCava()
+    }
+
     async handleMessage(websocket: Websocket, method: string, data: any) {
-        if (method !== 'notify_music_cava') return
+        // notify_music_cava intentionally does not arrive on the shared
+        // websocket anymore. CAVA packets are handled by handleCavaMessage().
+    }
 
-        const frameTarget = String(data?.target ?? 'default').trim() || 'default'
+    protected openCavaWebsocket() {
+        if (this.cavaStopped) return
 
+        if (
+            this.cavaWebsocket &&
+            (
+                this.cavaWebsocket.readyState === globalThis.WebSocket.OPEN ||
+                this.cavaWebsocket.readyState === globalThis.WebSocket.CONNECTING
+            )
+        ) {
+            return
+        }
+
+        const config = getConfig(/websocket/g)[0]
+        const port = config?.port ?? 8100
+        const target = encodeURIComponent(this.target)
+        const url = `ws://${window.location.hostname}:${port}/cava/${target}`
+
+        const websocket = new globalThis.WebSocket(url)
+        this.cavaWebsocket = websocket
+
+        websocket.onopen = () => {
+            if (this.cavaWebsocket !== websocket) return
+
+            this.cavaReconnectAttempt = 0
+        }
+
+        websocket.onmessage = (event) => {
+            if (this.cavaWebsocket !== websocket) return
+
+            this.handleCavaMessage(event.data)
+        }
+
+        websocket.onerror = () => {
+            // The close event handles reconnecting. Keep expected transient
+            // reconnect failures out of the browser console.
+        }
+
+        websocket.onclose = () => {
+            if (this.cavaWebsocket !== websocket) return
+
+            this.cavaWebsocket = undefined
+            this.resetCava()
+            this.scheduleCavaReconnect()
+        }
+    }
+
+    protected scheduleCavaReconnect() {
+        if (
+            this.cavaStopped ||
+            this.cavaReconnectTimer !== undefined
+        ) {
+            return
+        }
+
+        this.cavaReconnectAttempt++
+
+        const delay = Math.min(
+            1_000 * 2 ** Math.min(this.cavaReconnectAttempt - 1, 5),
+            30_000
+        )
+
+        this.cavaReconnectTimer = window.setTimeout(() => {
+            this.cavaReconnectTimer = undefined
+            this.openCavaWebsocket()
+        }, delay)
+    }
+
+    protected handleCavaMessage(raw: unknown) {
+        if (typeof raw !== 'string') return
+
+        let message: any
+
+        try {
+            message = JSON.parse(raw)
+        } catch {
+            return
+        }
+
+        if (message?.method !== 'notify_music_cava') return
+
+        const data = message?.params ?? {}
+        const frameTarget = String(data?.target ?? this.target).trim() || this.target
+
+        // Dedicated sockets should only receive their own feed, but keep the
+        // check so a malformed/misrouted packet cannot drive this visualizer.
         if (frameTarget !== this.target) return
 
         const frames = this.parseCavaFrames(String(data?.raw ?? ''))
@@ -49,7 +171,8 @@ export default class CavaController extends BaseController {
         for (const rawValues of frames) {
             if (!rawValues.length) continue
 
-            // Required because the final value is CAVA metadata/control data.
+            // The final value remains CAVA metadata/control data; the backend
+            // transport changed, not the raw frame format.
             const values = rawValues.slice(0, -1)
 
             if (!values.length) continue
@@ -60,14 +183,21 @@ export default class CavaController extends BaseController {
             }
 
             if (values.length !== this.expectedBarCount) {
-                console.warn(
-                    `[cava] ignoring frame with ${values.length} bars, expected ${this.expectedBarCount}`
-                )
                 continue
             }
 
             this.values = values
             this.smoothValues()
+            this.render()
+        }
+    }
+
+    protected resetCava() {
+        this.cavaBuffer = ''
+        this.values = new Array(this.expectedBarCount).fill(0)
+        this.smoothedValues = new Array(this.expectedBarCount).fill(0)
+
+        if (this.expectedBarCount > 0) {
             this.render()
         }
     }
