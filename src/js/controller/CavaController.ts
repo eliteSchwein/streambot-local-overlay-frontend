@@ -1,14 +1,150 @@
-import BaseController from "./BaseController";
-import { Websocket } from "websocket-ts";
+import { Controller } from "@hotwired/stimulus";
 import { getConfig } from "../helper/ConfigHelper";
 
 type CavaBar = HTMLDivElement | SVGRectElement
 
-export default class CavaController extends BaseController {
-    // CAVA is no longer sent through the normal overlay websocket.
-    // The shared websocket is still attached by BaseController so this
-    // controller continues to receive normal game/theme/shield updates.
-    websocketEndpoints: string[] = []
+type CavaSubscriber = {
+    onMessage: (raw: unknown) => void
+    onReset: () => void
+}
+
+type SharedCavaConnection = {
+    target: string
+    subscribers: Set<CavaSubscriber>
+    websocket?: globalThis.WebSocket
+    reconnectTimer?: number
+    reconnectAttempt: number
+}
+
+const sharedCavaConnections = new Map<string, SharedCavaConnection>()
+
+function getCavaUrl(target: string) {
+    const config = getConfig(/websocket/g)[0]
+    const port = config?.port ?? 8100
+    return `ws://${window.location.hostname}:${port}/cava/${encodeURIComponent(target)}`
+}
+
+function openSharedCavaConnection(connection: SharedCavaConnection) {
+    if (connection.subscribers.size < 1) return
+
+    if (
+        connection.websocket &&
+        (
+            connection.websocket.readyState === globalThis.WebSocket.OPEN ||
+            connection.websocket.readyState === globalThis.WebSocket.CONNECTING
+        )
+    ) {
+        return
+    }
+
+    const websocket = new globalThis.WebSocket(getCavaUrl(connection.target))
+    connection.websocket = websocket
+
+    websocket.onopen = () => {
+        if (connection.websocket !== websocket) return
+        connection.reconnectAttempt = 0
+    }
+
+    websocket.onmessage = (event) => {
+        if (connection.websocket !== websocket) return
+
+        for (const subscriber of connection.subscribers) {
+            subscriber.onMessage(event.data)
+        }
+    }
+
+    websocket.onerror = () => {
+        // Reconnect is handled by onclose.
+    }
+
+    websocket.onclose = () => {
+        if (connection.websocket !== websocket) return
+
+        connection.websocket = undefined
+
+        for (const subscriber of connection.subscribers) {
+            subscriber.onReset()
+        }
+
+        if (connection.subscribers.size < 1) {
+            sharedCavaConnections.delete(connection.target)
+            return
+        }
+
+        scheduleSharedCavaReconnect(connection)
+    }
+}
+
+function scheduleSharedCavaReconnect(connection: SharedCavaConnection) {
+    if (
+        connection.subscribers.size < 1 ||
+        connection.reconnectTimer !== undefined
+    ) {
+        return
+    }
+
+    connection.reconnectAttempt++
+
+    const delay = Math.min(
+        1_000 * 2 ** Math.min(connection.reconnectAttempt - 1, 5),
+        30_000
+    )
+
+    connection.reconnectTimer = window.setTimeout(() => {
+        connection.reconnectTimer = undefined
+        openSharedCavaConnection(connection)
+    }, delay)
+}
+
+function subscribeToCava(target: string, subscriber: CavaSubscriber) {
+    let connection = sharedCavaConnections.get(target)
+
+    if (!connection) {
+        connection = {
+            target,
+            subscribers: new Set<CavaSubscriber>(),
+            reconnectAttempt: 0,
+        }
+        sharedCavaConnections.set(target, connection)
+    }
+
+    connection.subscribers.add(subscriber)
+    openSharedCavaConnection(connection)
+
+    return () => {
+        const current = sharedCavaConnections.get(target)
+        if (!current) return
+
+        current.subscribers.delete(subscriber)
+
+        if (current.subscribers.size > 0) return
+
+        if (current.reconnectTimer !== undefined) {
+            window.clearTimeout(current.reconnectTimer)
+            current.reconnectTimer = undefined
+        }
+
+        const websocket = current.websocket
+        current.websocket = undefined
+
+        if (websocket) {
+            websocket.onopen = null
+            websocket.onmessage = null
+            websocket.onerror = null
+            websocket.onclose = null
+
+            try {
+                websocket.close()
+            } catch {
+                // Already closed.
+            }
+        }
+
+        sharedCavaConnections.delete(target)
+    }
+}
+
+export default class CavaController extends Controller<HTMLElement> {
 
     protected bars: CavaBar[] = []
     protected values: number[] = []
@@ -25,12 +161,9 @@ export default class CavaController extends BaseController {
     protected invertBars = false
     protected svgRectData = new Map<SVGRectElement, { y: number, height: number }>()
 
-    protected cavaWebsocket?: globalThis.WebSocket
-    protected cavaReconnectTimer?: number
-    protected cavaReconnectAttempt = 0
-    protected cavaStopped = false
+    protected unsubscribeCava?: () => void
 
-    async preConnect() {
+    connect() {
         this.isSvgMode = this.element instanceof SVGElement
         this.invertBars = this.element.getAttribute('data-cava-invert-bars') === 'true'
         this.target = this.element.getAttribute('data-cava-target')?.trim() || 'default'
@@ -39,111 +172,21 @@ export default class CavaController extends BaseController {
         if (this.isSvgMode) {
             this.ensureSvgBars()
         }
-    }
 
-    async postConnect() {
-        this.cavaStopped = false
-        this.openCavaWebsocket()
+        this.unsubscribeCava?.()
+
+        const subscriber: CavaSubscriber = {
+            onMessage: raw => this.handleCavaMessage(raw),
+            onReset: () => this.resetCava(),
+        }
+
+        this.unsubscribeCava = subscribeToCava(this.target, subscriber)
     }
 
     disconnect() {
-        this.cavaStopped = true
-
-        if (this.cavaReconnectTimer !== undefined) {
-            window.clearTimeout(this.cavaReconnectTimer)
-            this.cavaReconnectTimer = undefined
-        }
-
-        const websocket = this.cavaWebsocket
-        this.cavaWebsocket = undefined
-
-        if (websocket) {
-            websocket.onopen = null
-            websocket.onmessage = null
-            websocket.onerror = null
-            websocket.onclose = null
-
-            try {
-                websocket.close()
-            } catch {
-                // Already closed.
-            }
-        }
-
+        this.unsubscribeCava?.()
+        this.unsubscribeCava = undefined
         this.resetCava()
-    }
-
-    async handleMessage(websocket: Websocket, method: string, data: any) {
-        // notify_music_cava intentionally does not arrive on the shared
-        // websocket anymore. CAVA packets are handled by handleCavaMessage().
-    }
-
-    protected openCavaWebsocket() {
-        if (this.cavaStopped) return
-
-        if (
-            this.cavaWebsocket &&
-            (
-                this.cavaWebsocket.readyState === globalThis.WebSocket.OPEN ||
-                this.cavaWebsocket.readyState === globalThis.WebSocket.CONNECTING
-            )
-        ) {
-            return
-        }
-
-        const config = getConfig(/websocket/g)[0]
-        const port = config?.port ?? 8100
-        const target = encodeURIComponent(this.target)
-        const url = `ws://${window.location.hostname}:${port}/cava/${target}`
-
-        const websocket = new globalThis.WebSocket(url)
-        this.cavaWebsocket = websocket
-
-        websocket.onopen = () => {
-            if (this.cavaWebsocket !== websocket) return
-
-            this.cavaReconnectAttempt = 0
-        }
-
-        websocket.onmessage = (event) => {
-            if (this.cavaWebsocket !== websocket) return
-
-            this.handleCavaMessage(event.data)
-        }
-
-        websocket.onerror = () => {
-            // The close event handles reconnecting. Keep expected transient
-            // reconnect failures out of the browser console.
-        }
-
-        websocket.onclose = () => {
-            if (this.cavaWebsocket !== websocket) return
-
-            this.cavaWebsocket = undefined
-            this.resetCava()
-            this.scheduleCavaReconnect()
-        }
-    }
-
-    protected scheduleCavaReconnect() {
-        if (
-            this.cavaStopped ||
-            this.cavaReconnectTimer !== undefined
-        ) {
-            return
-        }
-
-        this.cavaReconnectAttempt++
-
-        const delay = Math.min(
-            1_000 * 2 ** Math.min(this.cavaReconnectAttempt - 1, 5),
-            30_000
-        )
-
-        this.cavaReconnectTimer = window.setTimeout(() => {
-            this.cavaReconnectTimer = undefined
-            this.openCavaWebsocket()
-        }, delay)
     }
 
     protected handleCavaMessage(raw: unknown) {
