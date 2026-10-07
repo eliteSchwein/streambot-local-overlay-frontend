@@ -1,4 +1,4 @@
-import { Controller } from "@hotwired/stimulus";
+import BaseController from "./BaseController";
 import { getConfig } from "../helper/ConfigHelper";
 
 type CavaBar = HTMLDivElement | SVGRectElement
@@ -144,7 +144,7 @@ function subscribeToCava(target: string, subscriber: CavaSubscriber) {
     }
 }
 
-export default class CavaController extends Controller<HTMLElement> {
+export default class CavaController extends BaseController {
 
     protected bars: CavaBar[] = []
     protected values: number[] = []
@@ -163,7 +163,7 @@ export default class CavaController extends Controller<HTMLElement> {
 
     protected unsubscribeCava?: () => void
 
-    connect() {
+    async preConnect() {
         this.isSvgMode = this.element instanceof SVGElement
         this.invertBars = this.element.getAttribute('data-cava-invert-bars') === 'true'
         this.target = this.element.getAttribute('data-cava-target')?.trim() || 'default'
@@ -174,11 +174,16 @@ export default class CavaController extends Controller<HTMLElement> {
         }
 
         this.unsubscribeCava?.()
+        this.unsubscribeCava = undefined
+    }
 
+    async postConnect() {
         const subscriber: CavaSubscriber = {
             onMessage: raw => this.handleCavaMessage(raw),
             onReset: () => this.resetCava(),
         }
+
+        console.log(`connect cava websocket ${this.target}`)
 
         this.unsubscribeCava = subscribeToCava(this.target, subscriber)
     }
