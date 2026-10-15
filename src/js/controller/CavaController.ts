@@ -13,7 +13,6 @@ type SharedCavaConnection = {
     subscribers: Set<CavaSubscriber>
     websocket?: globalThis.WebSocket
     reconnectTimer?: number
-    reconnectAttempt: number
 }
 
 const sharedCavaConnections = new Map<string, SharedCavaConnection>()
@@ -45,7 +44,11 @@ function openSharedCavaConnection(connection: SharedCavaConnection): void {
 
     websocket.onopen = () => {
         if (connection.websocket !== websocket) return
-        connection.reconnectAttempt = 0
+
+        if (connection.reconnectTimer !== undefined) {
+            window.clearTimeout(connection.reconnectTimer)
+            connection.reconnectTimer = undefined
+        }
     }
 
     websocket.onmessage = event => {
@@ -97,17 +100,11 @@ function scheduleSharedCavaReconnect(connection: SharedCavaConnection): void {
         return
     }
 
-    connection.reconnectAttempt++
-
-    const delay = Math.min(
-        1_000 * 2 ** Math.min(connection.reconnectAttempt - 1, 5),
-        30_000
-    )
-
+    // Same simple reconnect behaviour used by the Commander CAVA connection.
     connection.reconnectTimer = window.setTimeout(() => {
         connection.reconnectTimer = undefined
         openSharedCavaConnection(connection)
-    }, delay)
+    }, 2_000)
 }
 
 function subscribeToCava(
@@ -120,7 +117,6 @@ function subscribeToCava(
         connection = {
             target,
             subscribers: new Set<CavaSubscriber>(),
-            reconnectAttempt: 0,
         }
 
         sharedCavaConnections.set(target, connection)
@@ -163,18 +159,15 @@ function subscribeToCava(
 }
 
 export default class CavaController extends BaseController {
-    // Backend 2.0 serves CAVA on /cava/<target>. It must not be registered on
-    // the normal overlay websocket anymore.
+    // CAVA is transported through its own /cava/<target> websocket. Keep the
+    // BaseController lifecycle, but do not register CAVA on the normal socket.
     websocketEndpoints: string[] = []
 
     protected bars: CavaBar[] = []
     protected values: number[] = []
     protected smoothedValues: number[] = []
-    protected latestValues?: number[]
-    protected renderTimer?: number
-    protected lastRenderAt = 0
-    protected readonly renderIntervalMs = 33
 
+    protected cavaBuffer = ''
     protected expectedBarCount = 0
     protected target = 'default'
 
@@ -193,6 +186,7 @@ export default class CavaController extends BaseController {
         this.target = this.element.getAttribute('data-cava-target')?.trim() || 'default'
         this.element.classList.add('cava-controller')
 
+        // Capture the original SVG geometry before CAVA ever modifies it.
         if (this.isSvgMode) {
             this.ensureSvgBars()
         }
@@ -212,14 +206,6 @@ export default class CavaController extends BaseController {
     disconnect(): void {
         this.unsubscribeCava?.()
         this.unsubscribeCava = undefined
-
-        if (this.renderTimer !== undefined) {
-            window.clearTimeout(this.renderTimer)
-            this.renderTimer = undefined
-        }
-
-        this.latestValues = undefined
-        this.lastRenderAt = 0
         this.resetCava()
     }
 
@@ -241,83 +227,37 @@ export default class CavaController extends BaseController {
 
         if (frameTarget !== this.target) return
 
-        const frames = this.parseCavaFrames(String(data?.raw ?? ''))
+        this.handleCavaData(String(data?.raw ?? ''))
+    }
 
-        // Only keep the newest valid frame from this websocket message.
-        // Rendering is throttled through requestAnimationFrame so OBS/CEF is
-        // not forced to do DOM/SVG writes at the websocket message rate.
-        for (let i = frames.length - 1; i >= 0; i--) {
-            const rawValues = frames[i]
-            if (!rawValues.length) continue
+    /**
+     * Mirrors the Commander CAVA path:
+     *  - keep a newline buffer because a CAVA stdout chunk may contain partial
+     *    and/or multiple frames;
+     *  - remove the trailing CAVA control value in the parser;
+     *  - establish the visualizer bar count once;
+     *  - normalize later frames to that fixed count instead of rebuilding bars;
+     *  - smooth and render directly, without rAF/timer throttling.
+     */
+    protected handleCavaData(raw: string): void {
+        const frames = this.parseCavaFrames(raw)
 
-            // Required because the final value is CAVA metadata/control data.
-            const values = rawValues.slice(0, -1)
+        for (const values of frames) {
             if (!values.length) continue
 
-            if (values.length !== this.expectedBarCount) {
+            if (!this.expectedBarCount) {
                 this.expectedBarCount = values.length
                 this.ensureBars(this.expectedBarCount)
             }
 
-            this.latestValues = values
-            this.scheduleRender()
-            break
-        }
-    }
+            const normalizedValues = values.slice(0, this.expectedBarCount)
 
-    protected scheduleRender(): void {
-        const now = performance.now()
-        const elapsed = now - this.lastRenderAt
-
-        // Render the first frame immediately. After that, every incoming CAVA
-        // message gets a chance to render once the frame interval elapsed.
-        // This means OBS/CEF timers are NOT required for forward progress.
-        if (this.lastRenderAt === 0 || elapsed >= this.renderIntervalMs) {
-            if (this.renderTimer !== undefined) {
-                window.clearTimeout(this.renderTimer)
-                this.renderTimer = undefined
+            while (normalizedValues.length < this.expectedBarCount) {
+                normalizedValues.push(0)
             }
 
-            this.flushLatestFrame(now)
-            return
-        }
-
-        // Optional trailing render so the newest frame is shown when traffic
-        // pauses between intervals. If CEF throttles this timer, the next
-        // websocket message will still flush the frame itself.
-        if (this.renderTimer !== undefined) return
-
-        const delay = Math.max(1, this.renderIntervalMs - elapsed)
-
-        this.renderTimer = window.setTimeout(() => {
-            this.renderTimer = undefined
-            this.flushLatestFrame(performance.now())
-        }, delay)
-    }
-
-    protected flushLatestFrame(now: number = performance.now()): void {
-        const values = this.latestValues
-        if (!values) return
-
-        this.latestValues = undefined
-        this.lastRenderAt = now
-        this.values = values
-        this.smoothValues()
-        this.render()
-    }
-
-    protected resetCava(): void {
-        if (this.renderTimer !== undefined) {
-            window.clearTimeout(this.renderTimer)
-            this.renderTimer = undefined
-        }
-
-        this.latestValues = undefined
-        this.lastRenderAt = 0
-        this.values = new Array(this.expectedBarCount).fill(0)
-        this.smoothedValues = new Array(this.expectedBarCount).fill(0)
-
-        if (this.expectedBarCount > 0) {
+            this.values = normalizedValues
+            this.smoothValues()
             this.render()
         }
     }
@@ -325,21 +265,37 @@ export default class CavaController extends BaseController {
     protected parseCavaFrames(raw: string): number[][] {
         if (!raw) return []
 
-        // The dedicated /cava/<target> websocket sends complete CAVA frames
-        // per websocket message. Do not wait for a trailing newline here; the
-        // newest-frame transport commonly sends params.raw without one.
-        // Still support batched/multi-line payloads for compatibility.
-        return raw
-            .split(/\r?\n/)
+        this.cavaBuffer += raw
+
+        const lines = this.cavaBuffer.split(/\r?\n/)
+        this.cavaBuffer = lines.pop() ?? ''
+
+        return lines
             .map(line => line.trim())
             .filter(line => line.length > 0)
-            .map(line => line
-                .split(/[;,\s]+/)
-                .map(value => Number(value))
-                .filter(value => Number.isFinite(value))
-                .map(value => Math.max(0, Math.min(100, value)))
-            )
+            .map(line => {
+                const values = line
+                    .split(/[;,\s]+/)
+                    .map(value => Number(value))
+                    .filter(value => Number.isFinite(value))
+                    .map(value => Math.max(0, Math.min(100, value)))
+
+                // Current CAVA ascii output contains one trailing control value.
+                return values.length > 1
+                    ? values.slice(0, -1)
+                    : values
+            })
             .filter(values => values.length > 0)
+    }
+
+    protected resetCava(): void {
+        this.cavaBuffer = ''
+        this.values = new Array(this.expectedBarCount).fill(0)
+        this.smoothedValues = new Array(this.expectedBarCount).fill(0)
+
+        if (this.expectedBarCount > 0) {
+            this.render()
+        }
     }
 
     protected ensureBars(count: number): void {
@@ -378,7 +334,10 @@ export default class CavaController extends BaseController {
         const referenceWidth = Number(reference.getAttribute('width') ?? 0)
         const referenceHeight = Number(reference.getAttribute('height') ?? 0)
 
-        const spacingX = Number(spacingReference.getAttribute('x') ?? referenceX + referenceWidth)
+        const spacingX = Number(
+            spacingReference.getAttribute('x') ?? referenceX + referenceWidth
+        )
+
         const stepX = rects[1]
             ? spacingX - referenceX
             : referenceWidth + 1
@@ -402,6 +361,8 @@ export default class CavaController extends BaseController {
             rects.push(clone)
         }
 
+        // If the markup contains more seed bars than the configured CAVA frame,
+        // only use the requested amount. Do not rebuild them again on later frames.
         this.bars = rects.slice(0, desiredCount)
         this.smoothedValues = new Array(this.bars.length).fill(0)
         this.svgRectData.clear()
