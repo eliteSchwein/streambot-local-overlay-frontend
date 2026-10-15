@@ -9,14 +9,31 @@ export default class BaseController extends Controller<HTMLElement> {
     shieldActive = false;
     websocketEndpoints: string[] = [];
 
+    // Additional stateful endpoints used by this controller.
+    // The global state endpoints below are handled for every BaseController.
+    statefulWebsocketEndpoints: string[] = [];
+
+    protected websocketState = new Map<string, any>();
+
     alertBoxHelper: AlertBoxHelper
 
     async register() {
         this.websocket = getWebsocketClient()
 
-        this.websocket.registerEndpoints(this.websocketEndpoints)
+        // Attach the listener before registering endpoints. Backend 2.0 sends
+        // the full state immediately on first registration, so registering first
+        // can lose the only complete snapshot.
+        this.websocket.getWebsocket().addEventListener(
+            WebsocketEvent.message,
+            (websocket, event) => this.handleWebsocket(websocket, event)
+        )
 
-        this.websocket.getWebsocket().addEventListener(WebsocketEvent.message, (websocket, event) => this.handleWebsocket(websocket, event))
+        this.websocket.getWebsocket().addEventListener(
+            WebsocketEvent.close,
+            () => this.websocketState.clear()
+        )
+
+        this.websocket.registerEndpoints(this.websocketEndpoints)
 
         this.alertBoxHelper = new AlertBoxHelper(this.element.querySelector('.new-alert-box'))
     }
@@ -39,15 +56,28 @@ export default class BaseController extends Controller<HTMLElement> {
     async handleWebsocket(websocket: Websocket, event: MessageEvent) {
         const data = JSON.parse(event.data)
 
-        if(data.params.error) {
+        if (!data?.method) {
+            return
+        }
+
+        if(data.params?.error) {
             console.warn(data)
             return
         }
 
+        const params = this.isStatefulWebsocketEndpoint(data.method)
+            ? this.mergeStatefulWebsocketData(data.method, data.params)
+            : data.params
+
         if(
             data.method === 'notify_game_update'
         ) {
-            const gameData = data.params.data
+            const gameData = params?.data
+
+            if (!gameData) {
+                return
+            }
+
             const themeData = gameData.theme
             await this.handleGameUpdate(websocket, gameData)
 
@@ -56,11 +86,86 @@ export default class BaseController extends Controller<HTMLElement> {
         }
 
         if(data.method === 'notify_shield_mode') {
-            this.shieldActive = data.params.action === 'enable'
+            this.shieldActive = params?.action === 'enable'
             await this.handleShield()
         }
 
-        await this.handleMessage(websocket, data.method, data.params)
+        await this.handleMessage(websocket, data.method, params)
+    }
+
+    protected isStatefulWebsocketEndpoint(method: string): boolean {
+        return [
+            'notify_game_update',
+            'notify_shield_mode',
+            'notify_test_mode',
+            ...this.statefulWebsocketEndpoints,
+        ].includes(method)
+    }
+
+    protected mergeStatefulWebsocketData(method: string, patch: any): any {
+        if (!this.websocketState.has(method)) {
+            const initial = this.cloneWebsocketValue(patch)
+            this.websocketState.set(method, initial)
+            return initial
+        }
+
+        const merged = this.deepMergeWebsocketValue(
+            this.websocketState.get(method),
+            patch
+        )
+
+        this.websocketState.set(method, merged)
+        return merged
+    }
+
+    protected deepMergeWebsocketValue(current: any, patch: any): any {
+        // null is an explicit tombstone/value from the backend.
+        if (patch === null) {
+            return null
+        }
+
+        // Arrays and primitive values are atomic and replace the previous value.
+        if (Array.isArray(patch) || typeof patch !== 'object') {
+            return this.cloneWebsocketValue(patch)
+        }
+
+        if (patch === undefined) {
+            return current
+        }
+
+        const base = (
+            current !== null &&
+            typeof current === 'object' &&
+            !Array.isArray(current)
+        )
+            ? current
+            : {}
+
+        const result: Record<string, any> = { ...base }
+
+        for (const [key, value] of Object.entries(patch)) {
+            result[key] = this.deepMergeWebsocketValue(result[key], value)
+        }
+
+        return result
+    }
+
+    protected cloneWebsocketValue(value: any): any {
+        if (Array.isArray(value)) {
+            return value.map(item => this.cloneWebsocketValue(item))
+        }
+
+        if (value !== null && typeof value === 'object') {
+            const clone: Record<string, any> = {}
+
+            for (const [key, nestedValue] of Object.entries(value)) {
+                clone[key] = this.cloneWebsocketValue(nestedValue)
+            }
+
+            return clone
+        }
+
+        return value
     }
 
     applyTheme(themeData: any) {

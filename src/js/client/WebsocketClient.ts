@@ -43,10 +43,11 @@ export default class WebsocketClient {
 
             window.websocket = this.websocket;
 
+            // Only register the service reload listener here.
+            // Stateful overlay endpoints are registered after Stimulus controllers
+            // are connected, otherwise their one-time full snapshot can arrive
+            // before any controller is listening.
             this.registerEndpoints([
-                "notify_game_update",
-                "notify_shield_mode",
-                "notify_test_mode",
                 "notify_service_reload",
             ]);
 

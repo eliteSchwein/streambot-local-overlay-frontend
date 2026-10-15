@@ -3,6 +3,7 @@ import {Websocket} from "websocket-ts";
 
 export default class MusicController extends BaseController {
     websocketEndpoints = ['notify_music_update', 'notify_music_show', 'notify_test_mode']
+    statefulWebsocketEndpoints = ['notify_music_update']
 
     protected image = {
         trackId: '',

@@ -5,6 +5,7 @@ import {sleep} from "../helper/GeneralHelper";
 
 export default class BadgeController extends BaseController {
     websocketEndpoints = ['notify_ads']
+    statefulWebsocketEndpoints = ['notify_ads']
 
     static targets = ['title', 'subtitle', 'titleImage', 'logo', 'fullImage']
 
