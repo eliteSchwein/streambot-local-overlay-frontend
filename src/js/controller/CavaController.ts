@@ -171,7 +171,7 @@ export default class CavaController extends BaseController {
     protected values: number[] = []
     protected smoothedValues: number[] = []
     protected latestValues?: number[]
-    protected animationFrame?: number
+    protected renderTimer?: number
 
     protected expectedBarCount = 0
     protected target = 'default'
@@ -211,9 +211,9 @@ export default class CavaController extends BaseController {
         this.unsubscribeCava?.()
         this.unsubscribeCava = undefined
 
-        if (this.animationFrame !== undefined) {
-            cancelAnimationFrame(this.animationFrame)
-            this.animationFrame = undefined
+        if (this.renderTimer !== undefined) {
+            window.clearTimeout(this.renderTimer)
+            this.renderTimer = undefined
         }
 
         this.latestValues = undefined
@@ -263,10 +263,14 @@ export default class CavaController extends BaseController {
     }
 
     protected scheduleRender(): void {
-        if (this.animationFrame !== undefined) return
+        if (this.renderTimer !== undefined) return
 
-        this.animationFrame = requestAnimationFrame(() => {
-            this.animationFrame = undefined
+        // OBS Browser Source uses offscreen CEF rendering. requestAnimationFrame
+        // can be aggressively throttled there, so use a small fixed timer
+        // instead. Incoming websocket frames still use "latest frame wins",
+        // which keeps DOM/SVG writes capped at roughly 30 FPS.
+        this.renderTimer = window.setTimeout(() => {
+            this.renderTimer = undefined
 
             const values = this.latestValues
             this.latestValues = undefined
@@ -277,17 +281,16 @@ export default class CavaController extends BaseController {
             this.smoothValues()
             this.render()
 
-            // A newer websocket frame may have arrived while this one rendered.
             if (this.latestValues) {
                 this.scheduleRender()
             }
-        })
+        }, 33)
     }
 
     protected resetCava(): void {
-        if (this.animationFrame !== undefined) {
-            cancelAnimationFrame(this.animationFrame)
-            this.animationFrame = undefined
+        if (this.renderTimer !== undefined) {
+            window.clearTimeout(this.renderTimer)
+            this.renderTimer = undefined
         }
 
         this.latestValues = undefined
