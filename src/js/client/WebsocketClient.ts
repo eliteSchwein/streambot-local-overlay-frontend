@@ -23,7 +23,11 @@ export default class WebsocketClient {
         this.url = `ws://${window.location.hostname}:${config?.port ?? 8100}`;
 
         this.openWebsocket();
-        await sleep(500);
+
+        const opened = await this.waitForOpen(5_000);
+        if (!opened) {
+            throw new Error("WebSocket failed to open within 5000ms");
+        }
     }
 
     private openWebsocket() {
