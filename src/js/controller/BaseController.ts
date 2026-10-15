@@ -13,7 +13,13 @@ export default class BaseController extends Controller<HTMLElement> {
     // The global state endpoints below are handled for every BaseController.
     statefulWebsocketEndpoints: string[] = [];
 
+    // Stateful endpoints that represent multiple named/targeted entities.
+    // The value is the identity property used to keep independent state caches.
+    entityStatefulWebsocketEndpoints: Record<string, string> = {};
+
     protected websocketState = new Map<string, any>();
+    protected websocketEntityState = new Map<string, Map<string, any>>();
+    protected websocketEntityLastKey = new Map<string, string>();
 
     alertBoxHelper: AlertBoxHelper
 
@@ -30,7 +36,11 @@ export default class BaseController extends Controller<HTMLElement> {
 
         this.websocket.getWebsocket().addEventListener(
             WebsocketEvent.close,
-            () => this.websocketState.clear()
+            () => {
+                this.websocketState.clear()
+                this.websocketEntityState.clear()
+                this.websocketEntityLastKey.clear()
+            }
         )
 
         this.websocket.registerEndpoints(this.websocketEndpoints)
@@ -65,9 +75,11 @@ export default class BaseController extends Controller<HTMLElement> {
             return
         }
 
-        const params = this.isStatefulWebsocketEndpoint(data.method)
-            ? this.mergeStatefulWebsocketData(data.method, data.params)
-            : data.params
+        const params = this.isEntityStatefulWebsocketEndpoint(data.method)
+            ? this.mergeEntityStatefulWebsocketData(data.method, data.params)
+            : this.isStatefulWebsocketEndpoint(data.method)
+                ? this.mergeStatefulWebsocketData(data.method, data.params)
+                : data.params
 
         if(
             data.method === 'notify_game_update'
@@ -100,6 +112,55 @@ export default class BaseController extends Controller<HTMLElement> {
             'notify_test_mode',
             ...this.statefulWebsocketEndpoints,
         ].includes(method)
+    }
+
+    protected isEntityStatefulWebsocketEndpoint(method: string): boolean {
+        return Object.prototype.hasOwnProperty.call(
+            this.entityStatefulWebsocketEndpoints,
+            method
+        )
+    }
+
+    protected mergeEntityStatefulWebsocketData(method: string, patch: any): any {
+        if (patch === null || patch === undefined || typeof patch !== 'object' || Array.isArray(patch)) {
+            return patch
+        }
+
+        const identityProperty = this.entityStatefulWebsocketEndpoints[method]
+        if (!identityProperty) {
+            return patch
+        }
+
+        const patchIdentity = patch[identityProperty]
+        let entityKey = patchIdentity !== undefined && patchIdentity !== null
+            ? String(patchIdentity)
+            : this.websocketEntityLastKey.get(method)
+
+        // A delta without its identity can only be reconstructed after a full
+        // packet for the same method established which entity is being updated.
+        if (!entityKey) {
+            return patch
+        }
+
+        this.websocketEntityLastKey.set(method, entityKey)
+
+        let methodState = this.websocketEntityState.get(method)
+        if (!methodState) {
+            methodState = new Map<string, any>()
+            this.websocketEntityState.set(method, methodState)
+        }
+
+        const previous = methodState.get(entityKey)
+        const normalizedPatch = patchIdentity === undefined
+            ? { ...patch, [identityProperty]: entityKey }
+            : patch
+
+        const merged = previous === undefined
+            ? this.cloneWebsocketValue(normalizedPatch)
+            : this.deepMergeWebsocketValue(previous, normalizedPatch)
+
+        methodState.set(entityKey, merged)
+        return merged
     }
 
     protected mergeStatefulWebsocketData(method: string, patch: any): any {

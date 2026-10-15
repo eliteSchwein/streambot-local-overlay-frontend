@@ -268,12 +268,12 @@ export default class CavaController extends BaseController {
     protected parseCavaFrames(raw: string): number[][] {
         if (!raw) return []
 
-        this.cavaBuffer += raw
-
-        const lines = this.cavaBuffer.split(/\r?\n/)
-        this.cavaBuffer = lines.pop() ?? ''
-
-        return lines
+        // The dedicated /cava/<target> websocket sends complete CAVA frames
+        // per websocket message. Do not wait for a trailing newline here; the
+        // newest-frame transport commonly sends params.raw without one.
+        // Still support batched/multi-line payloads for compatibility.
+        return raw
+            .split(/\r?\n/)
             .map(line => line.trim())
             .filter(line => line.length > 0)
             .map(line => line

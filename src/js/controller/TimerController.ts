@@ -4,6 +4,7 @@ import {sleep} from "../helper/GeneralHelper";
 
 export default class TimerController extends BaseController {
     websocketEndpoints = ['notify_timer']
+    entityStatefulWebsocketEndpoints = { notify_timer: 'name' }
 
     static targets = ['leadingMinute', 'lastMinute', 'leadingSecond', 'lastSecond', 'progressBar', 'progressBg']
 

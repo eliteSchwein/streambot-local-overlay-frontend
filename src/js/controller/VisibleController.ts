@@ -3,6 +3,7 @@ import {Websocket} from "websocket-ts";
 
 export default class VisibleController extends BaseController {
     websocketEndpoints = ['notify_visible_element']
+    entityStatefulWebsocketEndpoints = { notify_visible_element: 'target' }
 
     protected id = this.element.dataset.id
 

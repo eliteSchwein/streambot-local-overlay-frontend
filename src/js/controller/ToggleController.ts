@@ -4,6 +4,7 @@ import {sleep} from "../helper/GeneralHelper";
 
 export default class ToggleController extends BaseController {
     websocketEndpoints = ['notify_toggle_element']
+    entityStatefulWebsocketEndpoints = { notify_toggle_element: 'target' }
 
     protected id = this.element.dataset.id
 
