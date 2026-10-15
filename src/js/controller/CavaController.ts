@@ -170,8 +170,9 @@ export default class CavaController extends BaseController {
     protected bars: CavaBar[] = []
     protected values: number[] = []
     protected smoothedValues: number[] = []
+    protected latestValues?: number[]
+    protected animationFrame?: number
 
-    protected cavaBuffer = ''
     protected expectedBarCount = 0
     protected target = 'default'
 
@@ -209,6 +210,13 @@ export default class CavaController extends BaseController {
     disconnect(): void {
         this.unsubscribeCava?.()
         this.unsubscribeCava = undefined
+
+        if (this.animationFrame !== undefined) {
+            cancelAnimationFrame(this.animationFrame)
+            this.animationFrame = undefined
+        }
+
+        this.latestValues = undefined
         this.resetCava()
     }
 
@@ -232,31 +240,57 @@ export default class CavaController extends BaseController {
 
         const frames = this.parseCavaFrames(String(data?.raw ?? ''))
 
-        for (const rawValues of frames) {
+        // Only keep the newest valid frame from this websocket message.
+        // Rendering is throttled through requestAnimationFrame so OBS/CEF is
+        // not forced to do DOM/SVG writes at the websocket message rate.
+        for (let i = frames.length - 1; i >= 0; i--) {
+            const rawValues = frames[i]
             if (!rawValues.length) continue
 
             // Required because the final value is CAVA metadata/control data.
             const values = rawValues.slice(0, -1)
-
             if (!values.length) continue
 
-            if (!this.expectedBarCount) {
+            if (values.length !== this.expectedBarCount) {
                 this.expectedBarCount = values.length
                 this.ensureBars(this.expectedBarCount)
             }
 
-            if (values.length !== this.expectedBarCount) {
-                continue
-            }
+            this.latestValues = values
+            this.scheduleRender()
+            break
+        }
+    }
+
+    protected scheduleRender(): void {
+        if (this.animationFrame !== undefined) return
+
+        this.animationFrame = requestAnimationFrame(() => {
+            this.animationFrame = undefined
+
+            const values = this.latestValues
+            this.latestValues = undefined
+
+            if (!values) return
 
             this.values = values
             this.smoothValues()
             this.render()
-        }
+
+            // A newer websocket frame may have arrived while this one rendered.
+            if (this.latestValues) {
+                this.scheduleRender()
+            }
+        })
     }
 
     protected resetCava(): void {
-        this.cavaBuffer = ''
+        if (this.animationFrame !== undefined) {
+            cancelAnimationFrame(this.animationFrame)
+            this.animationFrame = undefined
+        }
+
+        this.latestValues = undefined
         this.values = new Array(this.expectedBarCount).fill(0)
         this.smoothedValues = new Array(this.expectedBarCount).fill(0)
 
