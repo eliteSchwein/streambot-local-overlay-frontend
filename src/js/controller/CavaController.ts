@@ -172,6 +172,8 @@ export default class CavaController extends BaseController {
     protected smoothedValues: number[] = []
     protected latestValues?: number[]
     protected renderTimer?: number
+    protected lastRenderAt = 0
+    protected readonly renderIntervalMs = 33
 
     protected expectedBarCount = 0
     protected target = 'default'
@@ -217,6 +219,7 @@ export default class CavaController extends BaseController {
         }
 
         this.latestValues = undefined
+        this.lastRenderAt = 0
         this.resetCava()
     }
 
@@ -263,28 +266,44 @@ export default class CavaController extends BaseController {
     }
 
     protected scheduleRender(): void {
+        const now = performance.now()
+        const elapsed = now - this.lastRenderAt
+
+        // Render the first frame immediately. After that, every incoming CAVA
+        // message gets a chance to render once the frame interval elapsed.
+        // This means OBS/CEF timers are NOT required for forward progress.
+        if (this.lastRenderAt === 0 || elapsed >= this.renderIntervalMs) {
+            if (this.renderTimer !== undefined) {
+                window.clearTimeout(this.renderTimer)
+                this.renderTimer = undefined
+            }
+
+            this.flushLatestFrame(now)
+            return
+        }
+
+        // Optional trailing render so the newest frame is shown when traffic
+        // pauses between intervals. If CEF throttles this timer, the next
+        // websocket message will still flush the frame itself.
         if (this.renderTimer !== undefined) return
 
-        // OBS Browser Source uses offscreen CEF rendering. requestAnimationFrame
-        // can be aggressively throttled there, so use a small fixed timer
-        // instead. Incoming websocket frames still use "latest frame wins",
-        // which keeps DOM/SVG writes capped at roughly 30 FPS.
+        const delay = Math.max(1, this.renderIntervalMs - elapsed)
+
         this.renderTimer = window.setTimeout(() => {
             this.renderTimer = undefined
+            this.flushLatestFrame(performance.now())
+        }, delay)
+    }
 
-            const values = this.latestValues
-            this.latestValues = undefined
+    protected flushLatestFrame(now: number = performance.now()): void {
+        const values = this.latestValues
+        if (!values) return
 
-            if (!values) return
-
-            this.values = values
-            this.smoothValues()
-            this.render()
-
-            if (this.latestValues) {
-                this.scheduleRender()
-            }
-        }, 33)
+        this.latestValues = undefined
+        this.lastRenderAt = now
+        this.values = values
+        this.smoothValues()
+        this.render()
     }
 
     protected resetCava(): void {
@@ -294,6 +313,7 @@ export default class CavaController extends BaseController {
         }
 
         this.latestValues = undefined
+        this.lastRenderAt = 0
         this.values = new Array(this.expectedBarCount).fill(0)
         this.smoothedValues = new Array(this.expectedBarCount).fill(0)
 
