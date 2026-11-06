@@ -42,6 +42,8 @@ import ParticlesController from "./js/controller/ParticlesController";
 import MediaController from "./js/controller/MediaController";
 import {sleep} from "./js/helper/GeneralHelper";
 import AudioController from "./js/controller/AudioController";
+import CssController from "./js/controller/CssController";
+import VariableController from "./js/controller/VariableController";
 
 // variables
 let websocketClient: WebsocketClient
@@ -80,6 +82,8 @@ async function init(){
     stimulus.register('particles', ParticlesController)
     stimulus.register('media', MediaController)
     stimulus.register('audio', AudioController)
+    stimulus.register('css', CssController)
+    stimulus.register('variable', VariableController)
 
     await sleep(100)
 

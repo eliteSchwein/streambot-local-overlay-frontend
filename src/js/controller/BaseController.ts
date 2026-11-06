@@ -23,6 +23,10 @@ export default class BaseController extends Controller<HTMLElement> {
 
     alertBoxHelper: AlertBoxHelper
 
+    // Controllers that sit on a page-wide element (e.g. <body>) disable this so
+    // they do not grab and hide the first .new-alert-box of the page.
+    useAlertBox = true
+
     async register() {
         this.websocket = getWebsocketClient()
 
@@ -45,7 +49,9 @@ export default class BaseController extends Controller<HTMLElement> {
 
         this.websocket.registerEndpoints(this.websocketEndpoints)
 
-        this.alertBoxHelper = new AlertBoxHelper(this.element.querySelector('.new-alert-box'))
+        this.alertBoxHelper = new AlertBoxHelper(
+            this.useAlertBox ? this.element.querySelector('.new-alert-box') : null
+        )
     }
 
     async connect() {
