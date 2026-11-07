@@ -44,6 +44,7 @@ import {sleep} from "./js/helper/GeneralHelper";
 import AudioController from "./js/controller/AudioController";
 import CssController from "./js/controller/CssController";
 import VariableController from "./js/controller/VariableController";
+import QrCodeController from "./js/controller/QrCodeController";
 
 // variables
 let websocketClient: WebsocketClient
@@ -84,6 +85,7 @@ async function init(){
     stimulus.register('audio', AudioController)
     stimulus.register('css', CssController)
     stimulus.register('variable', VariableController)
+    stimulus.register('qrcode', QrCodeController)
 
     await sleep(100)
 
